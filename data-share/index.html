@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- v2 --><title>美股回撤监控 · QQQ / SPY / VGT / SMH</title>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#fff; --ink:#1c2330; --sub:#6b7688; --line:#e4e8ef;
+  --red:#d84343; --red-bg:#fdeeee; --green:#1a9e6c; --amber:#e8930c; --amber-bg:#fff6e8;
+  --blue:#2b6de8; --blue-bg:#eaf1fe;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);padding:20px;max-width:1280px;margin:0 auto}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:12px}
+header h1{font-size:22px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:13px;color:var(--sub)}
+.toolbar input[type=number]{width:120px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+button{padding:7px 14px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:13px;cursor:pointer;color:var(--ink)}
+button:hover{background:#f0f3f8}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff}
+#lastUpdate{font-size:12px;color:var(--sub)}
+#alertBanner{width:100%}
+.alert-item{background:var(--red-bg);border:1px solid #f3c1c1;color:var(--red);border-radius:10px;padding:10px 14px;margin-bottom:6px;font-size:14px;font-weight:600}
+.pe-alert{background:var(--amber-bg)!important;border-color:#f0d3a0!important;color:var(--amber)!important}
+.ok-item{background:var(--blue-bg)!important;border-color:#bcd2f5!important;color:var(--blue)!important;font-weight:500!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 1px 3px rgba(20,30,50,.05)}
+.card h2{font-size:16px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h2 .sym{color:var(--sub);font-size:12px;font-weight:500}
+.price-row{display:flex;align-items:baseline;gap:14px;margin:8px 0 4px;flex-wrap:wrap}
+.price{font-size:30px;font-weight:700}
+.chg{font-size:14px;font-weight:600}
+.up{color:var(--red)} .down{color:var(--green)}
+.meta{font-size:12px;color:var(--sub);line-height:1.75}
+.dd{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:13px;color:var(--sub)}
+.dd .num{font-size:34px;font-weight:800;color:var(--ink)}
+.dd .num.warn1{color:var(--amber)} .dd .num.warn2{color:var(--red)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 8px}
+.m-box{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fafbfc;min-width:0}
+.m-box .k{font-size:11.5px;color:var(--sub);margin-bottom:2px;white-space:nowrap}
+.m-box .v{font-size:23px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.3;color:var(--ink)}
+.m-box .v.warn1{color:var(--amber)} .m-box .v.warn2{color:var(--red)}
+.m-box input{width:100%;border:0;background:transparent;font-family:inherit;font-size:23px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;padding:0;line-height:1.3}
+.m-box input:focus{outline:none;border-bottom:1px dashed #b9c3d3}
+.m-box input[type=number]::-webkit-inner-spin-button,.m-box input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.m-box input[type=number]{-moz-appearance:textfield;appearance:textfield}
+@media (max-width:480px){.m-box .v,.m-box input{font-size:18px}.m-box .k{font-size:10.5px}}
+.m-box input::placeholder{color:#c3cad6;font-weight:600;font-size:18px}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--sub);background:#fafbfc}
+.chip.hit{background:var(--red);border-color:var(--red);color:#fff;font-weight:700}
+.chip.next{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);font-weight:700}
+.buy{margin-top:10px;background:#f0f6ff;border:1px solid #cadcf8;border-radius:10px;padding:9px 12px;font-size:13px}
+.buy b{color:var(--blue);font-size:15px}
+.pe-box{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.pe-box .label{font-size:13px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pe-box input{width:90px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+.err{color:var(--red);font-size:13px;padding:8px 0}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub);background:#fafbfc;font-weight:500}
+.badge.live{color:var(--green);border-color:#bfe3d5;background:#eefaf5}
+h3.sec{margin:22px 0 8px;font-size:16px}
+#historyList{list-style:none;font-size:13px}
+#historyList li{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+#historyList .t{color:var(--sub);white-space:nowrap}
+footer{margin-top:24px;font-size:12px;color:var(--sub);line-height:1.9}
+@media (max-width:520px){.grid{grid-template-columns:1fr}body{padding:12px}.price{font-size:26px}.dd .num{font-size:28px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 美股回撤监控</h1>
+  <div class="toolbar">
+    <span>总资产 <input id="totalAssets" type="number" min="0" step="1000" placeholder="如 291360"></span>
+    <button id="notifyBtn" class="primary">🔔 开启提醒</button>
+    <label style="display:flex;align-items:center;gap:4px"><input type="checkbox" id="autoChk" checked> 自动刷新</label>
+    <select id="intervalSel"><option value="60">每 60 秒</option><option value="300">每 5 分钟</option><option value="900">每 15 分钟</option></select>
+    <button id="refreshBtn">⟳ 刷新行情</button>
+    <span id="lastUpdate"></span>
+  </div>
+  <div id="alertBanner"></div>
+</header>
+
+<main class="grid" id="cards"></main>
+
+<h3 class="sec">🔔 提醒历史（保存在本机浏览器）</h3>
+<ul id="historyList"></ul>
+<button id="clearHistory">清空历史</button>
+
+<footer>
+  数据源：东方财富 / 纳斯达克官方行情 + stockanalysis.com 市盈率。回撤基准 = 上一次的波段高点（反弹创出新高会自动刷新基准，已处理拆股）。<br>
+  GitHub Pages 版本由定时任务每 30 分钟自动更新一次行情快照；本机部署（server.py）版本为实时数据。
+  规则：QQQ / SPY 回撤 10/15/20/25/30/35% 提醒；VGT / SMH 回撤 15/20/25/30/35/40/45/50% 提醒；VGT / SMH 前瞻市盈率降到 20 / 17.5 / 15 / 12.5 / 10 / 7.5 时提醒（市盈率自动抓取，可手动改）。<br>
+  建议买入金额 = 触发档位 % × 你填的总资产，只是纪律参考，不构成投资建议。
+</footer>
+
+<script id="snapshoData" type="application/json">{"QQQ": {"price": 674.76, "ath": 762.86, "athDate": "2026-10-01", "w52": 762.86, "dd": -11.55, "dd52": -11.55, "chg": -0.68, "time": "2026-11-10T21:00:01+00:00"}, "SPY": {"price": 749.92, "ath": 781.62, "athDate": "2026-10-01", "w52": 781.62, "dd": -4.06, "dd52": -4.06, "chg": -0.37, "time": "2026-11-10T21:00:00+00:00"}, "VGT": {"price": 110.52, "ath": 130.66, "athDate": "2026-10-01", "w52": 130.66, "dd": -15.41, "dd52": -15.41, "chg": -1.3, "time": "2026-11-10T21:00:00+00:00"}, "SMH": {"price": 483.63, "ath": 671.83, "athDate": "2026-06-01", "w52": 671.83, "dd": -28.01, "dd52": -28.01, "chg": -0.78, "time": "2026-11-10T21:00:00+00:00"}}</script>
+<script>
+const TICKERS = [
+  {sym:'QQQ', name:'纳斯达克100', thresholds:[10,15,20,25,30,35],       pe:false},
+  {sym:'SPY', name:'标普500',     thresholds:[10,15,20,25,30,35],       pe:false},
+  {sym:'VGT', name:'美国科技股',  thresholds:[15,20,25,30,35,40,45,50], pe:true},
+  {sym:'SMH', name:'费城半导体',  thresholds:[15,20,25,30,35,40,45,50], pe:true},
+];
+const PE_LEVELS = [20,17.5,15,12.5,10,7.5];
+let SNAPSHOT = JSON.parse(document.getElementById('snapshoData').textContent);
+/* GitHub Pages 部署时：定时任务每 30 分钟更新仓库里的 snapshot.json，这里拉取它作为数据源 */
+async function refreshSnapshot(){
+  try{
+    const r = await fetchWithTimeout('snapshot.json', 8000);
+    if(r.ok){
+      const j = await r.json();
+      if(j && j.QQQ && j.QQQ.price) SNAPSHOT = j;
+    }
+  }catch(e){}
+}
+
+const PROXIES = [
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => u,
+];
+async function fetchWithTimeout(url, ms=5000){
+  const ctl = new AbortController();
+  const id = setTimeout(()=>ctl.abort(), ms);
+  try{ return await fetch(url, {signal: ctl.signal, cache:'no-store'}); }
+  finally{ clearTimeout(id); }
+}
+async function fetchJSON(url){
+  let lastErr;
+  for(const p of PROXIES){
+    try{
+      const r = await fetchWithTimeout(p(url));
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const txt = await r.text();
+      if(!txt.trim().startsWith('{')) throw new Error('非 JSON 响应');
+      return JSON.parse(txt);
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error('全部数据通道不可用');
+}
+
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+          set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let totalAssets = LS.get('mz_total', null);
+let peState = LS.get('mz_pe', {VGT:null, SMH:null});
+let peTtmState = LS.get('mz_pe_ttm', {});
+let crossState = LS.get('mz_cross', {});
+let peCross = LS.get('mz_pe_cross', {});
+let history = LS.get('mz_history', []);
+
+const cardsEl=document.getElementById('cards'), bannerEl=document.getElementById('alertBanner'), histEl=document.getElementById('historyList');
+const taEl=document.getElementById('totalAssets');
+taEl.value = totalAssets ?? '';
+taEl.addEventListener('input', e=>{ totalAssets = e.target.value? parseFloat(e.target.value):null; LS.set('mz_total', totalAssets); render(); });
+document.getElementById('clearHistory').onclick=()=>{ history=[]; LS.set('mz_history',[]); renderHistory(); };
+
+document.getElementById('notifyBtn').onclick = async ()=>{
+  if(!('Notification' in window)) return alert('此浏览器不支持系统通知，页面内横幅仍然有效');
+  const p = await Notification.requestPermission();
+  if(p==='granted') new Notification('✅ 回撤提醒已开启', {body:'页面开着就会自动提醒你'});
+};
+function notify(title, body){
+  try{ if('Notification' in window && Notification.permission==='granted') new Notification(title,{body}); }catch(e){}
+  beep();
+}
+let audioCtx=null;
+function beep(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type='sine'; o.frequency.value=880;
+    g.gain.setValueAtTime(.22, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime+.45);
+    o.start(); o.stop(audioCtx.currentTime+.45);
+  }catch(e){}
+}
+function pushHistory(text){
+  history.unshift({t:Date.now(), text}); history=history.slice(0,100);
+  LS.set('mz_history',history); renderHistory();
+}
+function renderHistory(){
+  if(!history.length){ histEl.innerHTML='<li style="border:none;background:none;color:#6b7688">暂无提醒记录</li>'; return; }
+  histEl.innerHTML = history.map(h=>`<li><span>${h.text}</span><span class="t">${new Date(h.t).toLocaleString('zh-CN')}</span></li>`).join('');
+}
+
+/* 抓数据（含拆股修正：最近一次周跌幅>35% 视为拆股分界） */
+async function loadTicker(t){
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${t.sym}?range=max&interval=1wk`;
+  const j = await fetchJSON(url);
+  const r = j.chart.result[0], m = r.meta;
+  const ts = r.timestamp||[], hi = r.indicators.quote[0].high||[];
+  let start=0;
+  for(let i=hi.length-1;i>0;i--){ if(hi[i]&&hi[i-1]&&hi[i]/hi[i-1]-1 < -0.35){ start=i; break; } }
+  let ath=-1, athTs=0;
+  for(let i=start;i<hi.length;i++){ if(hi[i]&&hi[i]>ath){ ath=hi[i]; athTs=ts[i]; } }
+  const tail = hi.slice(Math.max(start, hi.length-52)).filter(x=>x!=null);
+  return finish(t, {price:m.regularMarketPrice, chg:m.regularMarketChangePercent,
+    ath, athDate:new Date(athTs*1000), w52:Math.max(...tail),
+    marketTime:new Date(m.regularMarketTime*1000)}, 'live');
+}
+function fromSnapshot(t){
+  const s = SNAPSHOT[t.sym];
+  if(!s) return null;
+  return finish(t, {price:s.price, chg:s.chg, ath:s.ath, athDate:new Date(s.athDate),
+    w52:s.w52, peTTM:s.peTTM, peFwd:s.peFwd, marketTime:new Date(s.time)}, 'snapshot');
+}
+function finish(t, x, src){
+  return {sym:t.sym, name:t.name, thresholds:t.thresholds, pe:t.pe,
+    price:x.price, chg:x.chg, ath:x.ath, athDate:x.athDate, w52:x.w52,
+    dd:(x.price/x.ath-1)*100, dd52:(x.price/x.w52-1)*100,
+    peTTM:x.peTTM ?? null, peFwd:x.peFwd ?? null,
+    marketTime:x.marketTime, src};
+}
+
+function checkCross(d){
+  const crossed = d.thresholds.filter(th => (-d.dd) >= th);
+  const prev = crossState[d.sym];
+  if(prev===undefined){ crossState[d.sym]=crossed; LS.set('mz_cross',crossState); return []; }
+  const newly = crossed.filter(th=>!prev.includes(th));
+  crossState[d.sym]=crossed; LS.set('mz_cross',crossState);
+  return newly;
+}
+function checkPE(sym, pe){
+  if(pe==null||isNaN(pe)) return [];
+  const crossed = PE_LEVELS.filter(l=>pe<=l);
+  const prev = peCross[sym];
+  if(prev===undefined){ peCross[sym]=crossed; LS.set('mz_pe_cross',peCross); return []; }
+  const newly = crossed.filter(l=>!prev.includes(l));
+  peCross[sym]=crossed; LS.set('mz_pe_cross',peCross);
+  return newly;
+}
+function buySuggest(d){
+  const crossed = d.thresholds.filter(th=>(-d.dd)>=th);
+  if(!crossed.length) return null;
+  const lvl = Math.max(...crossed);
+  return {lvl, amount: totalAssets? totalAssets*lvl/100 : null};
+}
+
+function fmt(n,dec=2){ return Number(n).toLocaleString('zh-CN',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function fmtDate(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function effPE(d){
+  const v = peState[d.sym];
+  return (v!=null && !isNaN(v)) ? v : (d.peFwd!=null? d.peFwd : null);
+}
+function peMsgText(sym, fwd){
+  const pe = (peState[sym]!=null && !isNaN(peState[sym])) ? peState[sym] : (fwd!=null? fwd : null);
+  if(pe==null||isNaN(pe)) return '填入前瞻市盈率后，落到 20/17.5/15/12.5/10/7.5 会分别提醒';
+  const crossed = PE_LEVELS.filter(l=>pe<=l);
+  if(!crossed.length) return `当前 ${pe}，高于 20，未进入提醒区间`;
+  return `当前 ${pe}，已跌破 <b>${Math.min(...crossed)}</b> 档 → 触发提醒`;
+}
+function renderCard(d){
+  const ddAbs = -d.dd;
+  const cls = ddAbs>=25?'warn2':(ddAbs>=10?'warn1':'');
+  const chgTxt = d.chg==null?'':`<span class="chg ${d.chg>=0?'up':'down'}">${d.chg>=0?'+':''}${fmt(d.chg)}%</span>`;
+  const crossed = d.thresholds.filter(th=>ddAbs>=th);
+  const nextTh = d.thresholds.find(th=>ddAbs<th);
+  const nextChip = nextTh? `<span class="chip next">下一档 -${nextTh}%（再跌 ${fmt(d.price - d.ath*(1-nextTh/100),2)} 美元）</span>`:'';
+  const buy = buySuggest(d);
+  const buyHTML = buy
+    ? `已触发 <b>-${buy.lvl}%</b> 档 → 建议买入总资产的 <b>${buy.lvl}%</b>${buy.amount!=null?` ≈ <b>${fmt(buy.amount,0)}</b>`:' <span style="color:#6b7688">（上方填总资产后显示金额）</span>'}`
+    : `未触发任何档位 → 按纪律观望${nextTh?`（下一档 -${nextTh}%）`:''}`;
+  const peTtmVal = (peTtmState[d.sym]!=null ? peTtmState[d.sym] : (d.peTTM!=null? fmt(d.peTTM,2) : ''));
+  const peFwdVal = (peState[d.sym]!=null ? peState[d.sym] : (d.peFwd!=null? fmt(d.peFwd,2) : ''));
+  const peHTML = d.pe ? `
+    <div class="pe-box">
+      <div class="ladder" id="peLadder_${d.sym}">${PE_LEVELS.map(l=>`<span class="chip ${(effPE(d)!=null&&effPE(d)<=l)?'hit':''}">P/E≤${l}</span>`).join('')}</div>
+      <div class="buy" id="peMsg_${d.sym}">${peMsgText(d.sym, d.peFwd)}</div>
+    </div>`:'';
+  return `<div class="card">
+    <h2><span>${d.name} <span class="sym">${d.sym}</span></span>
+      <span class="badge ${d.src==='live'?'live':''}">${d.src==='live'?'实时':'快照'}</span></h2>
+    <div class="price-row"><span class="price">${fmt(d.price)}</span>${chgTxt}</div>
+    <div class="meta">上次高点 <b>${fmt(d.ath)}</b>（${fmtDate(d.athDate)}）· 52周最高 ${fmt(d.w52)} · 距52周高点 ${fmt(d.dd52)}%<br>
+      数据时间${d.marketTime instanceof Date ? d.marketTime.toLocaleString('zh-CN') : d.marketTime}</div>
+    <div class="metrics">
+      <div class="m-box"><div class="k">距上次高点</div><div class="v ${cls}">${fmt(d.dd)}%</div></div>
+      <div class="m-box"><div class="k">目前市盈率</div><input id="peTtm_${d.sym}" type="number" step="0.1" min="0" placeholder="—" value="${peTtmVal}"></div>
+      <div class="m-box"><div class="k">前瞻市盈率</div><input id="pe_${d.sym}" type="number" step="0.1" min="0" placeholder="—" value="${peFwdVal}"></div>
+    </div>
+    <div class="ladder">${d.thresholds.map(th=>`<span class="chip ${ddAbs>=th?'hit':''}">-${th}% · ${totalAssets?('买'+fmt(totalAssets*th/100,0)):('买'+th+'%')}</span>`).join('')}${nextChip}</div>
+    <div class="buy">${buyHTML}</div>
+    ${peHTML}
+  </div>`;
+}
+function renderBanner(datas){
+  const alerts=[];
+  for(const d of datas){
+    if(!d) continue;
+    const crossed=d.thresholds.filter(th=>(-d.dd)>=th);
+    if(crossed.length){
+      const lvl=Math.max(...crossed);
+      alerts.push(`<div class="alert-item">🔔 ${d.name}（${d.sym}）距上次高点 ${fmt(d.dd)}%，已触发 <b>-${lvl}%</b> 档 → 建议买入总资产 ${lvl}%${totalAssets?` ≈ ${fmt(totalAssets*lvl/100,0)}`:''}</div>`);
+    }
+    const pe=effPE(d);
+    if(d.pe && pe!=null && !isNaN(pe)){
+      const pc=PE_LEVELS.filter(l=>pe<=l);
+      if(pc.length) alerts.push(`<div class="alert-item pe-alert">📈 ${d.name}（${d.sym}）前瞻市盈率 ${pe}，已到 ${Math.min(...pc)} 档以下</div>`);
+    }
+  }
+  bannerEl.innerHTML = alerts.length? alerts.join('') : '<div class="alert-item ok-item">✅ 四只标的均未触发提醒档位</div>';
+}
+
+let latest=[];
+/* 优先走本机服务 /api/quotes（服务端抓行情，无跨域问题）；失败再试公共代理；再退回快照 */
+async function fetchLocal(){
+  try{
+    const r = await fetchWithTimeout('/api/quotes', 40000);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    if(j.error) throw new Error(j.error);
+    return j;
+  }catch(e){ return null; }
+}
+async function refresh(){
+  document.getElementById('refreshBtn').disabled=true;
+  const local = await fetchLocal();
+  const results = await Promise.all(TICKERS.map(async t=>{
+    const q = local && local[t.sym];
+    if(q){
+      return finish(t, {price:q.price, chg:q.chg, ath:q.ath, athDate:new Date(q.athDate),
+        w52:q.w52, peTTM:q.peTTM, peFwd:q.peFwd, marketTime:q.time}, 'live');
+    }
+    try{ return await loadTicker(t); }
+    catch(e){ await refreshSnapshot(); return fromSnapshot(t) || {sym:t.sym,name:t.name,thresholds:t.thresholds,pe:t.pe,err:String(e)}; }
+  }));
+  latest = results;
+  for(const d of results){
+    if(d.err) continue;
+    for(const th of checkCross(d)){
+      const amt = totalAssets? `，建议买入总资产 ${th}% ≈ ${fmt(totalAssets*th/100,0)}` : `，建议买入总资产 ${th}%`;
+      pushHistory(`🔔 ${d.name}（${d.sym}）距上次高点 ${fmt(d.dd)}%，触发 -${th}% 档${amt}`);
+      notify(`${d.name} 触发 -${th}% 回撤提醒`, `现价 ${fmt(d.price)}，距上次高点 ${fmt(d.ath)} 回撤 ${fmt(d.dd)}%${amt}`);
+    }
+    if(d.pe){
+      const pe=effPE(d);
+      if(pe!=null && !isNaN(pe)){
+        for(const lvl of checkPE(d.sym, pe)){
+          pushHistory(`📈 ${d.name}（${d.sym}）前瞻市盈率 ${pe}，跌到 ${lvl} 档以下`);
+          notify(`${d.name} 前瞻市盈率提醒`, `当前 P/E ${pe}，已到 ${lvl} 档以下`);
+        }
+      }
+    }
+  }
+  render();
+  const live = results.filter(d=>d.src==='live').length;
+  document.getElementById('lastUpdate').textContent = `${live===4?'实时':(live?live+'/4 实时':'快照')} · ${new Date().toLocaleTimeString('zh-CN')}`;
+  document.getElementById('refreshBtn').disabled=false;
+}
+function render(){
+  cardsEl.innerHTML = latest.map(d=> d.err
+    ? `<div class="card"><h2>${d.name} <span class="sym">${d.sym}</span></h2><div class="err">⚠️ 行情获取失败：${d.err}</div></div>`
+    : renderCard(d)).join('');
+  renderBanner(latest);
+  for(const d of latest){
+    if(!d || d.err || !d.pe) continue;
+    const inp=document.getElementById('pe_'+d.sym);
+    if(!inp) continue;
+    inp.oninput = e=>{
+      peState[d.sym] = e.target.value===''? null : parseFloat(e.target.value);
+      LS.set('mz_pe', peState);
+      for(const lvl of checkPE(d.sym, peState[d.sym])){
+        pushHistory(`📈 ${d.name}（${d.sym}）前瞻市盈率 ${peState[d.sym]}，跌到 ${lvl} 档以下`);
+        notify(`${d.name} 前瞻市盈率提醒`, `当前 P/E ${peState[d.sym]}，已到 ${lvl} 档以下`);
+      }
+      const msg=document.getElementById('peMsg_'+d.sym); if(msg) msg.innerHTML = peMsgText(d.sym, d.peFwd);
+      const box=document.getElementById('peLadder_'+d.sym);
+      if(box) box.innerHTML = PE_LEVELS.map(l=>`<span class="chip ${(effPE(d)!=null&&effPE(d)<=l)?'hit':''}">P/E≤${l}</span>`).join('');
+      renderBanner(latest);
+    };
+    const ttm=document.getElementById('peTtm_'+d.sym);
+    if(ttm) ttm.oninput = e=>{
+      peTtmState[d.sym] = e.target.value===''? null : parseFloat(e.target.value);
+      LS.set('mz_pe_ttm', peTtmState);
+    };
+  }
+}
+let timer=null;
+function setupTimer(){
+  if(timer) clearInterval(timer);
+  if(document.getElementById('autoChk').checked){
+    timer=setInterval(refresh, parseInt(document.getElementById('intervalSel').value)*1000);
+  }
+}
+document.getElementById('refreshBtn').onclick=refresh;
+document.getElementById('autoChk').onchange=setupTimer;
+document.getElementById('intervalSel').onchange=setupTimer;
+
+renderHistory();
+// 先用快照秒出页面，再后台升级为实时数据；本地优先拉最新 snapshot.json
+(async function init(){
+  await refreshSnapshot();
+  latest = TICKERS.map(t=>fromSnapshot(t)).filter(Boolean);
+  render();
+  refresh();
+  setupTimer();
+})();
+</script>
+</body>
+</html>

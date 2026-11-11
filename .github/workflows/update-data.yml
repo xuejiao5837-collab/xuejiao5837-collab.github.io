@@ -1,0 +1,50 @@
+name: 更新行情快照并部署
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # 每 30 分钟（UTC）
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 抓取最新行情
+        run: python data-share/fetch_data.py || echo "::warning::抓取失败，沿用上次快照"
+
+      - name: 提交快照
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data-share/snapshot.json
+          git diff --cached --quiet || (git commit -m "chore: 更新行情快照 [skip ci]" && git push)
+
+      - uses: actions/configure-pages@v5
+        with:
+          enabled: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
