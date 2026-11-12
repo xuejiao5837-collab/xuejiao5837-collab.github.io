@@ -314,6 +314,7 @@
         <li><div class="row" onclick="openPage('contact')"><span class="num">v</span><span class="word" data-i18n="m5">联系我</span></div></li>
         <li><div class="row" onclick="openPage('skills')"><span class="num">vi</span><span class="word" data-i18n="m6">技能分享</span></div></li>
         <li><div class="row" onclick="openPage('share')"><span class="num">vii</span><span class="word" data-i18n="m7">数据共享</span></div></li>
+        <li><div class="row" onclick="openPage('news')"><span class="num">viii</span><span class="word" data-i18n="m8">今日资讯</span></div></li>
       </ul>
     </nav>
   </header>
@@ -729,6 +730,7 @@ function lang(){
 /* ===== 二级页开关 ===== */
 let curPage = null;
 function openPage(name){
+  if(name==="news"){ window.open("news.html","_blank"); return; }
   if(curPage) document.getElementById("pg-"+curPage).classList.remove("show");
   curPage = name;
   const pg = document.getElementById("pg-"+name);
@@ -768,7 +770,7 @@ function toggleSkill(){
 }
 try{
   const h = location.hash.replace("#","");
-  if(["socials","book","tests","journey","contact","skills","share"].includes(h)) openPage(h);
+  if(["socials","book","tests","journey","contact","skills","share","news"].includes(h)) openPage(h);
 }catch(e){}
 
 /* ===== 书目录渲染 ===== */
