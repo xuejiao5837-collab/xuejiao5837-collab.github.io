@@ -192,7 +192,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neu
       <input id="codeInput" type="text" placeholder="输入查看密码" autocomplete="off" autocapitalize="characters" spellcheck="false" style="width:60%;padding:12px 14px;border:1.5px solid #c7c9f5;border-radius:10px;font-size:16px;letter-spacing:1px;">
       <button class="btn btn-ghost" onclick="unlockByCode()">解锁</button>
       <div id="codeMsg" style="color:#dc2626;font-size:13px;margin-top:6px;"></div>
-      <div style="color:#8a8fa8;font-size:12px;margin-top:4px;">基础版 ¥9.9 与深度版 ¥19.9 的密码不同，付款后商家会把对应密码发给你</div>
+      <div style="color:#8a8fa8;font-size:12px;margin-top:4px;">付款成功后本页会自动弹出解锁码；也可直接输入你拿到的查看密码（深度码同时解锁基础版）</div>
     </div>
     <button class="btn btn-ghost" onclick="backHome()">返回首页</button>
   </div>
@@ -251,6 +251,18 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neu
       <a id="refreshTip" class="tip hidden" style="display:block;text-align:center;color:#5a60e8;text-decoration:underline;cursor:pointer;" onclick="checkNow()">已付款但没自动解锁？点此刷新</a>
       <button class="btn btn-ghost" style="margin-top:12px;" onclick="closePay();showCodeEntry();">我已付款，输入密码看报告</button>
     </div>
+  </div>
+</div>
+
+<!-- 支付成功：自动弹出解锁码（金数据式体验） -->
+<div class="mask" id="paidMask" onclick="if(event.target===this)closePaidMask()">
+  <div class="sheet">
+    <div style="font-size:44px;line-height:1;">🎉</div>
+    <div style="font-weight:800;font-size:18px;margin-top:8px;">支付成功！</div>
+    <p class="note" style="margin:6px 0 0;">你的专属解锁码已生成</p>
+    <div id="paidCodeText" style="font-size:28px;font-weight:800;letter-spacing:4px;color:#16a34a;background:#f0fdf4;border:2px dashed #16a34a;border-radius:12px;padding:12px;margin:12px 0;"></div>
+    <button class="btn btn-primary" onclick="autoFillCode()">一键填入解锁码，打开报告</button>
+    <button class="btn btn-ghost" style="margin-top:10px;" onclick="manualFromPaid()">我要手动输入解锁码</button>
   </div>
 </div>
 
@@ -2605,13 +2617,10 @@ const BANK = {
 const CONTACT_WX = "";     // 例："psy_test_01"
 
 /* ================= 查看密码（最简模式：所有客户共用同一个密码） ================= */
-/* 收到款 → 把密码发给对方 → 他输入即可看报告。不需要一单一码，也不需要你后台操作。 */
-/* ⚠️ 明文密钥请记在手边（页面里只存哈希，看不到明文）：
-   基础版 ¥9.9  → M10086
-   深度版 ¥19.9 → M10010 （深度密码同时解锁基础版） */
+/* 收到款 → 用户输码看报告。统一码与智力测试站相同，付款成功后页面也会自动弹码。 */
 const SALT_PASS = "psy_universal_2026";
-const PASS_BASIC_HASH = ["16668f18b9013c4db781b75c", "a0183e9893529dea828c7175", "8aed261a242ee5cb0e99d436"];   // [0]=现行基础版密码，其余=旧密码（仍有效）
-const PASS_DEEP_HASH  = ["89c8bd39f569e28fc833be24", "9f617c255b7e191be4cf5cb4", "39cbce910500f735c5748e88"];   // [0]=现行深度版密码（同时解锁基础版），其余=旧密码（仍有效）
+const PASS_BASIC_HASH = ["1f4172da7504ddcb0b8bfa56", "16668f18b9013c4db781b75c", "a0183e9893529dea828c7175", "8aed261a242ee5cb0e99d436"];   // [0]=现行统一基础码（同智力测试站），其余=旧密码（仍有效）
+const PASS_DEEP_HASH  = ["7015f4caa21bbc0b58d5f96c", "89c8bd39f569e28fc833be24", "9f617c255b7e191be4cf5cb4", "39cbce910500f735c5748e88"];   // [0]=现行统一深度码（同时解锁基础版），其余=旧密码（仍有效）
 
 /* ================= 旧的按单解锁码（保留兼容：之前发出去的码仍然有效） ================= */
 const SALT_B = "psy_basic_2026";
@@ -2792,7 +2801,7 @@ function syncPayBtn(){
   if (q2) q2.classList.toggle("hidden", useBuy);
 }
 document.addEventListener("DOMContentLoaded", syncPayBtn);
-let pollTimer = null, qrTimer = null, curOrder = null, pollCount = 0;
+let pollTimer = null, qrTimer = null, curOrder = null, pollCount = 0, pollErrStreak = 0;
 /* 下单：最多尝试 3 次。第 1 次 POST；失败后改用 GET（免 CORS 预检，弱网/代理环境更易成功） */
 async function apiCreate(){
   let lastErr = null;
@@ -2916,18 +2925,27 @@ async function checkNow(){
   try{
     const r = await fetch(API_BASE + "?action=query&order_no=" + curOrder).then(x=>x.json());
     if (r.paid) onPaid(r.plan || plan);
-    else $("payStatus").innerHTML = "暂未查到付款记录。若刚付完款，请等 10 秒再点一次";
+    else $("payStatus").innerHTML = "正在确认支付结果，付款成功后本页会自动弹出解锁码…";
   }catch(e){ $("payStatus").textContent = "网络异常，请重试"; }
 }
 function stopPoll(){ if (pollTimer){ clearTimeout(pollTimer); pollTimer = null; } }
 function pollOnce(no){
   pollCount++;
   fetch(API_BASE + "?action=query&order_no=" + no).then(x=>x.json()).then(r=>{
+    pollErrStreak = 0;
     if (r.paid){ stopPoll(); onPaid(r.plan || plan); return; }
     if (pollCount > 400){ stopPoll(); $("payStatus").innerHTML = "订单已超时未支付，请关闭后重新下单"; return; }
     // 前 90 次（约3分钟）每 2 秒查一次，之后放宽到每 5 秒，总计约 20 分钟
     pollTimer = setTimeout(()=>pollOnce(no), pollCount <= 90 ? 2000 : 5000);
-  }).catch(()=>{ pollTimer = setTimeout(()=>pollOnce(no), 3000); });
+  }).catch(()=>{
+    pollErrStreak++;
+    if (pollErrStreak === 5){
+      showCodeEntry();
+      const m = $("codeMsg"); m.style.color = "#b45309";
+      m.textContent = "⚠️ 网络检测不稳定。如你已完成付款，可直接输入解锁码打开报告";
+    }
+    pollTimer = setTimeout(()=>pollOnce(no), 3000);
+  });
 }
 function startPoll(no){
   stopPoll();
@@ -2945,9 +2963,26 @@ function onPaid(level){
   closePay();
   if (level === "deep"){ paid.deep = true; paid.basic = true; } else paid.basic = true;
   saveState();
-  buildReport();
-  show("view-report");
+  showPaidCode(level === "deep" ? "deep" : "basic");
 }
+
+/* ---- 支付成功自动弹码（金数据式：付款→页面跳出解锁码→输码解锁） ---- */
+const PLAN_CODE_REV = { basic: "01001G", deep: "68001G" };  // 混淆存储，运行时反转
+let paidCodeShown = "";
+function decodeCode(k){ return PLAN_CODE_REV[k].split("").reverse().join(""); }
+function showPaidCode(level){
+  paidCodeShown = decodeCode(level);
+  $("paidCodeText").textContent = paidCodeShown;
+  $("paidMask").style.display = "flex";
+}
+function closePaidMask(){ $("paidMask").style.display = "none"; }
+function autoFillCode(){
+  if (!paidCodeShown) return;
+  $("codeInput").value = paidCodeShown;
+  closePaidMask();
+  unlockByCode();
+}
+function manualFromPaid(){ closePaidMask(); showCodeEntry(); }
 function closePay(){ stopPoll(); clearInterval(qrTimer); $("payMask").style.display = "none"; }
 /* 银行卡信息渲染：没填就整块隐藏 */
 function applyBank(){
@@ -3027,7 +3062,7 @@ function showCodeEntry(){
 async function unlockByCode(){
   const raw = $("codeInput").value;
   const r = await checkCode(raw);
-  if (r.err){ $("codeMsg").textContent = r.err; return; }
+  if (r.err){ const m=$("codeMsg"); m.style.color="#dc2626"; m.textContent = r.err; return; }
   const used = getUsed().map(x=>String(x).toUpperCase().replace(/[^A-Z0-9]/g,""));
   if (!r.universal && used.indexOf(r.norm) >= 0 && !paid.basic){
     $("codeMsg").textContent = "该解锁码已在本机使用过";

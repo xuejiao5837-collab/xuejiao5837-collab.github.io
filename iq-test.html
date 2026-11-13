@@ -180,7 +180,7 @@ a.linktip{color:var(--c1);text-decoration:underline;cursor:pointer;font-size:13p
       </ul>
     </div>
     <button class="btn btn-pay" id="payBtn" onclick="openPay()">微信支付 ¥9.9 · 付款后自动解锁</button>
-    <p class="note">付款成功后报告将在本页<b style="color:var(--ok);">自动弹出</b>；若未自动弹出，点下方「我已付款，输入查看密码解锁」输码查看</p>
+    <p class="note">付款成功后本页会<b style="color:var(--ok);">自动弹出解锁码</b>，点一下按钮即可打开报告（和金数据一样的体验）；也可以手动输入你拿到的查看密码</p>
     <p style="text-align:center;margin-top:8px;"><a class="linktip" onclick="showCodeEntry()">我已付款，输入查看密码解锁</a></p>
     <div id="codeEntry" class="hidden">
       <div class="code-row">
@@ -216,6 +216,18 @@ a.linktip{color:var(--c1);text-decoration:underline;cursor:pointer;font-size:13p
     <button class="btn btn-ghost" style="margin-top:12px;" onclick="closePay();showCodeEntry();">我已付款，输入密码看报告</button>
     <div id="wxBrowserTip" class="tip hidden" style="color:var(--accent);font-weight:600;">检测到你在微信内打开：直接长按上方二维码 → 识别 → 付款即可</div>
     <button class="btn btn-ghost" style="margin-top:14px;" onclick="closePay()">关闭</button>
+  </div>
+</div>
+
+<!-- 支付成功：自动弹出解锁码（金数据式体验） -->
+<div class="mask" id="paidMask" onclick="if(event.target===this)closePaidMask()">
+  <div class="sheet">
+    <div style="font-size:44px;line-height:1;">🎉</div>
+    <div style="font-weight:800;font-size:18px;margin-top:8px;">支付成功！</div>
+    <p class="note" style="margin:6px 0 0;">你的专属解锁码已生成</p>
+    <div id="paidCodeText" style="font-size:28px;font-weight:800;letter-spacing:4px;color:#16a34a;background:#f0fdf4;border:2px dashed #16a34a;border-radius:12px;padding:12px;margin:12px 0;"></div>
+    <button class="btn btn-primary" onclick="autoFillCode()">一键填入解锁码，打开报告</button>
+    <button class="btn btn-ghost" style="margin-top:10px;" onclick="manualFromPaid()">我要手动输入解锁码</button>
   </div>
 </div>
 
@@ -2631,7 +2643,7 @@ function selectPlan(p){
 function syncPayBtn(){
   $("payBtn").textContent = (plan==="deep" ? "微信支付 ¥19.9" : "微信支付 ¥9.9") + " · 付款后自动解锁";
 }
-let pollTimer = null, qrTimer = null, curOrder = null, pollCount = 0;
+let pollTimer = null, qrTimer = null, curOrder = null, pollCount = 0, pollErrStreak = 0;
 /* 下单：最多尝试 3 次。第 1 次 POST；失败后改用 GET（免 CORS 预检，弱网/代理环境更易成功） */
 async function apiCreate(){
   let lastErr = null;
@@ -2727,18 +2739,27 @@ async function checkNow(){
   try{
     const r = await fetch(API_BASE + "?action=query&order_no=" + curOrder).then(x=>x.json());
     if (r.paid){ stopPoll(); onPaid(r.plan || plan); }
-    else $("payStatus").textContent = "正在确认支付结果，付款成功后本页会自动打开报告…";
+    else $("payStatus").textContent = "正在确认支付结果，付款成功后本页会自动弹出解锁码…";
   }catch(e){ $("payStatus").textContent = "网络异常，请稍后再试"; }
 }
 function stopPoll(){ if (pollTimer){ clearTimeout(pollTimer); pollTimer = null; } }
 function pollOnce(no){
   pollCount++;
   fetch(API_BASE + "?action=query&order_no=" + no).then(x=>x.json()).then(r=>{
+    pollErrStreak = 0;
     if (r.paid){ stopPoll(); onPaid(r.plan || plan); return; }
     if (pollCount > 400){ stopPoll(); $("payStatus").textContent = "订单已超时未支付，请关闭后重新下单"; return; }
     // 前 90 次（约3分钟）每 2 秒查一次，之后放宽到每 5 秒，总计约 20 分钟
     pollTimer = setTimeout(()=>pollOnce(no), pollCount <= 90 ? 2000 : 5000);
-  }).catch(()=>{ pollTimer = setTimeout(()=>pollOnce(no), 3000); });
+  }).catch(()=>{
+    pollErrStreak++;
+    if (pollErrStreak === 5){
+      showCodeEntry();
+      $("codeMsg").style.color = "#b45309";
+      $("codeMsg").textContent = "⚠️ 网络检测不稳定。如你已完成付款，可直接输入解锁码打开报告";
+    }
+    pollTimer = setTimeout(()=>pollOnce(no), 3000);
+  });
 }
 function startPoll(no){
   stopPoll();
@@ -2756,9 +2777,26 @@ function onPaid(level){
   closePay();
   if (level === "deep"){ paid.deep = true; paid.basic = true; } else paid.basic = true;
   saveState();
-  buildReport();
-  show("view-report");
+  showPaidCode(level === "deep" ? "deep" : "basic");
 }
+
+/* ---- 支付成功自动弹码（金数据式：付款→页面跳出解锁码→输码解锁） ---- */
+const PLAN_CODE_REV = { basic: "01001G", deep: "68001G" };  // 混淆存储，运行时反转
+let paidCodeShown = "";
+function decodeCode(k){ return PLAN_CODE_REV[k].split("").reverse().join(""); }
+function showPaidCode(level){
+  paidCodeShown = decodeCode(level);
+  $("paidCodeText").textContent = paidCodeShown;
+  $("paidMask").style.display = "flex";
+}
+function closePaidMask(){ $("paidMask").style.display = "none"; }
+function autoFillCode(){
+  if (!paidCodeShown) return;
+  $("codeInput").value = paidCodeShown;
+  closePaidMask();
+  unlockByCode();
+}
+function manualFromPaid(){ closePaidMask(); showCodeEntry(); }
 
 /* ==================== 查看密码解锁 ==================== */
 async function sha256(s){
@@ -2777,7 +2815,7 @@ async function checkCode(raw){
 async function unlockByCode(){
   const raw = $("codeInput").value;
   const r = await checkCode(raw);
-  if (r.err){ $("codeMsg").textContent = r.err; return; }
+  if (r.err){ $("codeMsg").style.color = "#dc2626"; $("codeMsg").textContent = r.err; return; }
   if (r.level === "deep"){ paid.deep = true; paid.basic = true; } else paid.basic = true;
   saveState();
   buildReport();
