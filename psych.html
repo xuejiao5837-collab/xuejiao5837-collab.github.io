@@ -2911,29 +2911,36 @@ async function checkNow(){
     else $("payStatus").innerHTML = "暂未查到付款记录。若刚付完款，请等 10 秒再点一次";
   }catch(e){ $("payStatus").textContent = "网络异常，请重试"; }
 }
-function startPoll(no){
-  clearInterval(pollTimer);
-  pollTimer = setInterval(async ()=>{
-    pollCount++;
-    try{
-      const r = await fetch(API_BASE + "?action=query&order_no=" + no).then(x=>x.json());
-      if (r.paid){ clearInterval(pollTimer); onPaid(r.plan || plan); }
-      else if (pollCount > 150){    // 约 5 分钟未付款
-        clearInterval(pollTimer);
-        $("payStatus").innerHTML = "订单已超时未支付，请关闭后重新下单";
-      }
-    }catch(e){ /* 网络抖动，下次再查 */ }
-  }, 2000);
+function stopPoll(){ if (pollTimer){ clearTimeout(pollTimer); pollTimer = null; } }
+function pollOnce(no){
+  pollCount++;
+  fetch(API_BASE + "?action=query&order_no=" + no).then(x=>x.json()).then(r=>{
+    if (r.paid){ stopPoll(); onPaid(r.plan || plan); return; }
+    if (pollCount > 400){ stopPoll(); $("payStatus").innerHTML = "订单已超时未支付，请关闭后重新下单"; return; }
+    // 前 90 次（约3分钟）每 2 秒查一次，之后放宽到每 5 秒，总计约 20 分钟
+    pollTimer = setTimeout(()=>pollOnce(no), pollCount <= 90 ? 2000 : 5000);
+  }).catch(()=>{ pollTimer = setTimeout(()=>pollOnce(no), 3000); });
 }
+function startPoll(no){
+  stopPoll();
+  pollCount = 0;
+  pollOnce(no);
+}
+/* 用户从微信切回页面时立即查询一次并恢复轮询（后台时浏览器会暂停定时器） */
+document.addEventListener("visibilitychange", ()=>{
+  if (document.visibilityState === "visible" && curOrder && $("payMask").style.display === "flex"){
+    stopPoll(); pollCount = 0; pollOnce(curOrder);
+  }
+});
 function onPaid(level){
-  clearInterval(pollTimer);
+  stopPoll();
   closePay();
   if (level === "deep"){ paid.deep = true; paid.basic = true; } else paid.basic = true;
   saveState();
   buildReport();
   show("view-report");
 }
-function closePay(){ clearInterval(pollTimer); clearInterval(qrTimer); $("payMask").style.display = "none"; }
+function closePay(){ stopPoll(); clearInterval(qrTimer); $("payMask").style.display = "none"; }
 /* 银行卡信息渲染：没填就整块隐藏 */
 function applyBank(){
   const box = $("bankBox"); if (!box) return;
