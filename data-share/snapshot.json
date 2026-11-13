@@ -52,19 +52,19 @@
  },
  "SMH": {
   "sym": "SMH",
-  "name": "半导体指数ETF-VanEck",
-  "price": 501.73,
+  "name": "SMH",
+  "price": 502.32,
   "ath": 639.47,
   "athDate": "2026-10-06",
   "athAll": 671.83,
   "athAllDate": "2026-06-22",
   "w52": 671.83,
-  "dd": -21.54,
-  "dd52": -25.32,
-  "chg": -1.03,
+  "dd": -21.45,
+  "dd52": -25.23,
+  "chg": 0.12,
   "peTTM": 26.22,
   "peFwd": 15.72,
-  "time": "2026-11-12",
-  "src": "eastmoney"
+  "time": "Nov 13, 2026 7:33 AM ET",
+  "src": "nasdaq"
  }
 }
