@@ -187,6 +187,13 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neu
     </div>
 
     <button class="btn btn-primary" id="payBtn" onclick="openPay()">微信支付并解锁报告</button>
+    <p style="text-align:center;margin:10px 0 0;"><a class="linktip" style="cursor:pointer;color:#5a60e8;text-decoration:underline;" onclick="showCodeEntry()">我已付款，输入查看密码解锁</a></p>
+    <div id="codeEntry" class="hidden" style="margin-top:10px;">
+      <input id="codeInput" type="text" placeholder="输入查看密码" autocomplete="off" autocapitalize="characters" spellcheck="false" style="width:60%;padding:12px 14px;border:1.5px solid #c7c9f5;border-radius:10px;font-size:16px;letter-spacing:1px;">
+      <button class="btn btn-ghost" onclick="unlockByCode()">解锁</button>
+      <div id="codeMsg" style="color:#dc2626;font-size:13px;margin-top:6px;"></div>
+      <div style="color:#8a8fa8;font-size:12px;margin-top:4px;">基础版 ¥9.9 与深度版 ¥19.9 的密码不同，付款后商家会把对应密码发给你</div>
+    </div>
     <button class="btn btn-ghost" onclick="backHome()">返回首页</button>
   </div>
 
@@ -242,6 +249,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neu
       <div class="tip" id="payStatus" style="color:#5a60e8;font-weight:600;"></div>
       <a id="qrRefresh" class="tip hidden" style="display:block;text-align:center;color:#5a60e8;text-decoration:underline;cursor:pointer;" onclick="refreshQr()">二维码长时间没扫？点此换一张新码</a>
       <a id="refreshTip" class="tip hidden" style="display:block;text-align:center;color:#5a60e8;text-decoration:underline;cursor:pointer;" onclick="checkNow()">已付款但没自动解锁？点此刷新</a>
+      <button class="btn btn-ghost" style="margin-top:12px;" onclick="closePay();showCodeEntry();">我已付款，输入密码看报告</button>
     </div>
   </div>
 </div>
@@ -3007,6 +3015,30 @@ async function useCode(raw, opts){
   buildReport();
   show("view-report");
   return true;
+}
+/* 输码解锁（金数据模式）：付款后商家发统一密码，输入即解锁 */
+function showCodeEntry(){
+  if ($("view-pay").classList.contains("hidden")) show("view-pay");
+  $("codeEntry").classList.remove("hidden");
+  $("codeMsg").textContent = "";
+  $("codeInput").focus();
+  window.scrollTo(0,0);
+}
+async function unlockByCode(){
+  const raw = $("codeInput").value;
+  const r = await checkCode(raw);
+  if (r.err){ $("codeMsg").textContent = r.err; return; }
+  const used = getUsed().map(x=>String(x).toUpperCase().replace(/[^A-Z0-9]/g,""));
+  if (!r.universal && used.indexOf(r.norm) >= 0 && !paid.basic){
+    $("codeMsg").textContent = "该解锁码已在本机使用过";
+    return;
+  }
+  if (!r.universal) markUsed(r.norm);
+  if (r.level === "deep"){ paid.deep = true; paid.basic = true; } else paid.basic = true;
+  $("codeMsg").textContent = "";
+  saveState();
+  buildReport();
+  show("view-report");
 }
 
 /* 从链接里取解锁码：?u=K7F2-9QDX （也兼容 ?code= / ?unlock= 以及 #u=） */

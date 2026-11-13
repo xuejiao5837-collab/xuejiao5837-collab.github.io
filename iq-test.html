@@ -180,14 +180,15 @@ a.linktip{color:var(--c1);text-decoration:underline;cursor:pointer;font-size:13p
       </ul>
     </div>
     <button class="btn btn-pay" id="payBtn" onclick="openPay()">微信支付 ¥9.9 · 付款后自动解锁</button>
-    <p class="note">付款成功后报告将在本页<b style="color:var(--ok);">自动弹出</b>，全程无需输入任何验证码</p>
-    <p style="text-align:center;margin-top:8px;"><a class="linktip" onclick="showCodeEntry()">已有查看密码？点此输入解锁</a></p>
+    <p class="note">付款成功后报告将在本页<b style="color:var(--ok);">自动弹出</b>；若未自动弹出，点下方「我已付款，输入查看密码解锁」输码查看</p>
+    <p style="text-align:center;margin-top:8px;"><a class="linktip" onclick="showCodeEntry()">我已付款，输入查看密码解锁</a></p>
     <div id="codeEntry" class="hidden">
       <div class="code-row">
         <input id="codeInput" type="text" placeholder="输入查看密码" autocomplete="off" autocapitalize="characters" spellcheck="false">
         <button class="btn btn-ghost" onclick="unlockByCode()">解锁</button>
       </div>
       <div id="codeMsg" class="note" style="color:#dc2626;"></div>
+      <div style="color:#8a8fa8;font-size:12px;margin-top:4px;">基础版 ¥9.9 用基础密码；深度版 ¥19.9 用深度密码（也可解锁基础版内容）</div>
     </div>
   </div>
 </div>
@@ -212,6 +213,7 @@ a.linktip{color:var(--c1);text-decoration:underline;cursor:pointer;font-size:13p
     <div id="payStatus"></div>
     <a id="qrRefresh" class="linktip hidden" style="display:inline-block;margin-top:4px;" onclick="refreshQr()">二维码长时间没扫？点此换一张新码</a>
     <a id="refreshTip" class="linktip hidden" style="display:inline-block;margin-top:4px;" onclick="checkNow()">已付款但没自动解锁？点此刷新</a>
+    <button class="btn btn-ghost" style="margin-top:12px;" onclick="closePay();showCodeEntry();">我已付款，输入密码看报告</button>
     <div id="wxBrowserTip" class="tip hidden" style="color:var(--accent);font-weight:600;">检测到你在微信内打开：直接长按上方二维码 → 识别 → 付款即可</div>
     <button class="btn btn-ghost" style="margin-top:14px;" onclick="closePay()">关闭</button>
   </div>
@@ -2655,7 +2657,6 @@ async function apiCreate(){
 function openPay(){
   $("payAmount").textContent = plan==="basic" ? "¥9.9" : "¥19.9";
   $("payMask").style.display = "flex";
-  $("codeEntry").classList.add("hidden");
   createOnlineOrder();
 }
 function closePay(){ stopPoll(); clearInterval(qrTimer); $("payMask").style.display = "none"; }
@@ -2782,7 +2783,7 @@ async function unlockByCode(){
   buildReport();
   show("view-report");
 }
-function showCodeEntry(){ $("codeEntry").classList.remove("hidden"); $("codeInput").focus(); }
+function showCodeEntry(){ $("codeEntry").classList.remove("hidden"); $("codeMsg").textContent = ""; $("codeInput").focus(); window.scrollTo(0,0); }
 
 /* ==================== 计分与报告 ==================== */
 function normCdf(z){ return 0.5*(1+erf(z/Math.SQRT2)); }
