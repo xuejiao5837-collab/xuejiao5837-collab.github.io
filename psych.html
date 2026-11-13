@@ -237,10 +237,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neu
       </div>
       <a id="wxLink" class="btn btn-ghost hidden" href="#">无法扫码？点击唤起微信支付</a>
       <div class="tip hidden" id="wxBrowserTip" style="background:#fff6e5;border:1px solid #ffd591;border-radius:10px;padding:10px 12px;color:#8a5a00;line-height:1.7;">
-        当前在微信内打开，无法直接唤起付款。<br>请点右上角 <b>···</b> → <b>在浏览器中打开</b>，或截图后在微信「扫一扫 → 相册」里扫码。
+        检测到你在微信内打开：直接<b>长按上方二维码 → 识别 → 付款</b>即可。
       </div>
       <div class="tip" id="payStatus" style="color:#5a60e8;font-weight:600;"></div>
-      <p class="tip">无法长按识别？请截图本二维码，打开微信「扫一扫」从相册选取</p>
+      <a id="qrRefresh" class="tip hidden" style="display:block;text-align:center;color:#5a60e8;text-decoration:underline;cursor:pointer;" onclick="refreshQr()">二维码长时间没扫？点此换一张新码</a>
       <a id="refreshTip" class="tip hidden" style="display:block;text-align:center;color:#5a60e8;text-decoration:underline;cursor:pointer;" onclick="checkNow()">已付款但没自动解锁？点此刷新</a>
     </div>
   </div>
@@ -2784,7 +2784,7 @@ function syncPayBtn(){
   if (q2) q2.classList.toggle("hidden", useBuy);
 }
 document.addEventListener("DOMContentLoaded", syncPayBtn);
-let pollTimer = null, curOrder = null, pollCount = 0;
+let pollTimer = null, qrTimer = null, curOrder = null, pollCount = 0;
 function openPay(){
   // ① 已配置第三方平台商品链接 → 直接跳转平台收银台（平台付款后自动发货带码链接）
   const buyUrl = (BUY_URL && BUY_URL[plan]) || "";
@@ -2798,14 +2798,27 @@ function showStaticQr(){
   $("qrImg").classList.remove("hidden");
   $("qrOnline").classList.add("hidden");
   $("wxLink").classList.add("hidden");
+  $("qrRefresh").classList.add("hidden");
   $("refreshTip").classList.add("hidden");
   $("wxBrowserTip").classList.add("hidden");
   $("payStatus").textContent = "";
+}
+async function refreshQr(){
+  if (!curOrder) return;
+  try{
+    const r = await fetch(API_BASE + "?action=qr&order_no=" + encodeURIComponent(curOrder)).then(x=>x.json());
+    if (r.ok && r.pay_qr){
+      $("qrOnline").src = qrcodeToDataURL(r.pay_qr, 6);
+      $("qrOnline").classList.remove("hidden");
+      $("qrImg").classList.add("hidden");
+    }
+  }catch(e){}
 }
 async function createOnlineOrder(){
   $("qrImg").classList.add("hidden");
   $("qrOnline").classList.add("hidden");
   $("wxLink").classList.add("hidden");
+  $("qrRefresh").classList.add("hidden");
   $("refreshTip").classList.add("hidden");
   $("wxBrowserTip").classList.add("hidden");
   $("payStatus").textContent = "正在生成订单…";
@@ -2815,13 +2828,24 @@ async function createOnlineOrder(){
     }).then(x=>x.json());
     if (!r.ok) throw new Error(r.error || "下单失败");
     curOrder = r.order_no; pollCount = 0;
-    await showPayQr(r.pay_url || r.code_url || r.qrcode);
-    // 微信内置浏览器无法唤起 weixin:// 支付，改引导到外部浏览器
-    const inWeChat = typeof navigator !== "undefined" && /MicroMessenger/i.test(navigator.userAgent || "");
-    $("wxBrowserTip").classList.toggle("hidden", !inWeChat);
-    if (inWeChat) $("wxLink").classList.add("hidden");
+    if (r.pay_qr){
+      // 微信原生收款码：扫一扫直接弹出付款页，一步直达
+      $("qrOnline").src = qrcodeToDataURL(r.pay_qr, 6);
+      $("qrOnline").classList.remove("hidden");
+      $("qrRefresh").classList.remove("hidden");
+      $("wxBrowserTip").classList.remove("hidden");
+      $("payStatus").textContent = "请用微信扫一扫付款（或微信内长按二维码识别），付款成功后本页会自动打开报告";
+      clearInterval(qrTimer);
+      qrTimer = setInterval(refreshQr, 4 * 60 * 1000);   // 收款码约5分钟过期，4分钟自动换新
+    } else {
+      await showPayQr(r.pay_url || r.code_url || r.qrcode);
+      // 微信内置浏览器无法唤起 weixin:// 支付，改引导到外部浏览器
+      const inWeChat = typeof navigator !== "undefined" && /MicroMessenger/i.test(navigator.userAgent || "");
+      $("wxBrowserTip").classList.toggle("hidden", !inWeChat);
+      if (inWeChat) $("wxLink").classList.add("hidden");
+      $("payStatus").textContent = "请用微信扫码打开收银台付款，付款成功后本页会自动打开报告";
+    }
     $("refreshTip").classList.remove("hidden");
-    $("payStatus").textContent = "请用微信扫码支付，付款成功后本页会自动打开报告";
     startPoll(curOrder);
   }catch(e){
     $("payStatus").innerHTML = "订单创建失败：" + (e.message||"网络异常") + "<br>请稍后重试，或下拉改用客服发码方式";
@@ -2893,7 +2917,7 @@ function onPaid(level){
   buildReport();
   show("view-report");
 }
-function closePay(){ clearInterval(pollTimer); $("payMask").style.display = "none"; }
+function closePay(){ clearInterval(pollTimer); clearInterval(qrTimer); $("payMask").style.display = "none"; }
 /* 银行卡信息渲染：没填就整块隐藏 */
 function applyBank(){
   const box = $("bankBox"); if (!box) return;

@@ -209,10 +209,10 @@ a.linktip{color:var(--c1);text-decoration:underline;cursor:pointer;font-size:13p
     <div class="amount" id="payAmount"></div>
     <img id="qrOnline" class="hidden" alt="微信支付二维码">
     <img id="qrImg" class="hidden" style="width:200px;height:200px;object-fit:contain;" alt="收款码">
-    <a id="wxLink" class="hidden" href="#" target="_blank" style="display:inline-block;margin-top:8px;font-size:14px;color:var(--c1);text-decoration:underline;">微信内点此打开支付 ↗</a>
     <div id="payStatus"></div>
+    <a id="qrRefresh" class="linktip hidden" style="display:inline-block;margin-top:4px;" onclick="refreshQr()">二维码长时间没扫？点此换一张新码</a>
     <a id="refreshTip" class="linktip hidden" style="display:inline-block;margin-top:4px;" onclick="checkNow()">已付款但没自动解锁？点此刷新</a>
-    <div id="wxBrowserTip" class="tip hidden" style="color:var(--accent);font-weight:600;">检测到你在微信内打开：请点右上角「···」选择「在浏览器打开」，再扫码支付更顺畅</div>
+    <div id="wxBrowserTip" class="tip hidden" style="color:var(--accent);font-weight:600;">检测到你在微信内打开：直接长按上方二维码 → 识别 → 付款即可</div>
     <button class="btn btn-ghost" style="margin-top:14px;" onclick="closePay()">关闭</button>
   </div>
 </div>
@@ -2629,18 +2629,18 @@ function selectPlan(p){
 function syncPayBtn(){
   $("payBtn").textContent = (plan==="deep" ? "微信支付 ¥19.9" : "微信支付 ¥9.9") + " · 付款后自动解锁";
 }
-let pollTimer = null, curOrder = null, pollCount = 0;
+let pollTimer = null, qrTimer = null, curOrder = null, pollCount = 0;
 function openPay(){
   $("payAmount").textContent = plan==="basic" ? "¥9.9" : "¥19.9";
   $("payMask").style.display = "flex";
   $("codeEntry").classList.add("hidden");
   createOnlineOrder();
 }
-function closePay(){ clearInterval(pollTimer); $("payMask").style.display = "none"; }
+function closePay(){ clearInterval(pollTimer); clearInterval(qrTimer); $("payMask").style.display = "none"; }
 async function createOnlineOrder(){
   $("qrImg").classList.add("hidden");
   $("qrOnline").classList.add("hidden");
-  $("wxLink").classList.add("hidden");
+  $("qrRefresh").classList.add("hidden");
   $("refreshTip").classList.add("hidden");
   $("wxBrowserTip").classList.add("hidden");
   $("payStatus").textContent = "正在生成订单…";
@@ -2651,27 +2651,46 @@ async function createOnlineOrder(){
     }).then(x=>x.json());
     if (!r.ok) throw new Error(r.error || "下单失败");
     curOrder = r.order_no; pollCount = 0;
-    await showPayQr(r.pay_url || r.code_url || r.qrcode);
-    const inWeChat = /MicroMessenger/i.test(navigator.userAgent || "");
-    $("wxBrowserTip").classList.toggle("hidden", !inWeChat);
-    if (inWeChat) $("wxLink").classList.add("hidden");
+    if (r.pay_qr){
+      // 微信原生收款码：扫一扫直接弹出付款页，一步直达
+      $("qrOnline").src = qrcodeToDataURL(r.pay_qr, 6);
+      $("qrOnline").classList.remove("hidden");
+      $("qrRefresh").classList.remove("hidden");
+      $("wxBrowserTip").classList.remove("hidden");
+      $("payStatus").innerHTML = "请用微信<span class='em'>扫一扫</span>付款（或微信内长按二维码识别），付款成功后本页会<span class='em'>自动打开报告</span>";
+      clearInterval(qrTimer);
+      qrTimer = setInterval(refreshQr, 4 * 60 * 1000);   // 收款码约5分钟过期，4分钟自动换新
+    } else {
+      // 回落：收银台网页二维码
+      await showPayQr(r.pay_url || r.code_url || r.qrcode);
+      const inWeChat = /MicroMessenger/i.test(navigator.userAgent || "");
+      $("wxBrowserTip").classList.toggle("hidden", !inWeChat);
+      $("payStatus").innerHTML = "请用微信<span class='em'>扫码</span>打开收银台付款，付款成功后本页会<span class='em'>自动打开报告</span>";
+    }
     $("refreshTip").classList.remove("hidden");
-    $("payStatus").innerHTML = "请用微信<span class='em'>扫码支付</span>，付款成功后本页会<span class='em'>自动打开报告</span>";
     startPoll(curOrder);
   }catch(e){
     $("payStatus").textContent = "订单创建失败：" + (e.message||"网络异常") + "，请稍后重试";
   }
 }
+async function refreshQr(){
+  if (!curOrder) return;
+  try{
+    const r = await fetch(API_BASE + "?action=qr&order_no=" + encodeURIComponent(curOrder)).then(x=>x.json());
+    if (r.ok && r.pay_qr){
+      $("qrOnline").src = qrcodeToDataURL(r.pay_qr, 6);
+      $("qrOnline").classList.remove("hidden");
+    }
+  }catch(e){}
+}
 async function showPayQr(url){
   if (!url) throw new Error("未获取到支付链接");
-  if (/^weixin:\/\//i.test(url) || (/^https?:\/\//i.test(url) && !/(\.png|\.jpg|\.jpeg|\.gif|qrcode\.php|qrcode=)/i.test(url))){
-    $("qrOnline").src = qrcodeToDataURL(url, 6);
-    $("qrOnline").classList.remove("hidden");
-    $("wxLink").href = url; $("wxLink").classList.remove("hidden");
-  } else {
+  if (/(\.png|\.jpg|\.jpeg|\.gif)/i.test(url)){
     $("qrOnline").src = url;
-    $("qrOnline").classList.remove("hidden");
+  } else {
+    $("qrOnline").src = qrcodeToDataURL(url, 6);
   }
+  $("qrOnline").classList.remove("hidden");
 }
 function qrcodeToDataURL(text, cell){
   const qr = qrcode(0, 'M'); qr.addData(text); qr.make();
