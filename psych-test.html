@@ -2785,6 +2785,25 @@ function syncPayBtn(){
 }
 document.addEventListener("DOMContentLoaded", syncPayBtn);
 let pollTimer = null, qrTimer = null, curOrder = null, pollCount = 0;
+/* 下单：最多尝试 3 次。第 1 次 POST；失败后改用 GET（免 CORS 预检，弱网/代理环境更易成功） */
+async function apiCreate(){
+  let lastErr = null;
+  for (let i = 0; i < 3; i++){
+    try{
+      const r = (i === 0
+        ? fetch(API_BASE + "?action=create", {
+            method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({plan})
+          })
+        : fetch(API_BASE + "?action=create&plan=" + encodeURIComponent(plan))
+      ).then(x=>x.json());
+      const j = await r;
+      if (j && j.ok) return j;
+      lastErr = new Error((j && j.error) || "下单失败");
+    }catch(e){ lastErr = e; }
+    if (i < 2) await new Promise(res=>setTimeout(res, 900 * (i + 1)));
+  }
+  throw lastErr || new Error("网络异常");
+}
 function openPay(){
   // ① 已配置第三方平台商品链接 → 直接跳转平台收银台（平台付款后自动发货带码链接）
   const buyUrl = (BUY_URL && BUY_URL[plan]) || "";
@@ -2823,10 +2842,7 @@ async function createOnlineOrder(){
   $("wxBrowserTip").classList.add("hidden");
   $("payStatus").textContent = "正在生成订单…";
   try{
-    const r = await fetch(API_BASE + "?action=create", {
-      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({plan})
-    }).then(x=>x.json());
-    if (!r.ok) throw new Error(r.error || "下单失败");
+    const r = await apiCreate();
     curOrder = r.order_no; pollCount = 0;
     if (r.pay_qr){
       // 微信原生收款码：扫一扫直接弹出付款页，一步直达
@@ -2848,7 +2864,7 @@ async function createOnlineOrder(){
     $("refreshTip").classList.remove("hidden");
     startPoll(curOrder);
   }catch(e){
-    $("payStatus").innerHTML = "订单创建失败：" + (e.message||"网络异常") + "<br>请稍后重试，或下拉改用客服发码方式";
+    $("payStatus").innerHTML = "订单创建失败：" + (e.message||"网络异常") + "<br>请检查网络（如在用 VPN 或代理请先关闭再试）后重新点付款，或下拉改用客服发码方式";
     showStaticQr();
   }
 }
