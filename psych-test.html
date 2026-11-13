@@ -190,26 +190,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neu
     <button class="btn btn-ghost" onclick="backHome()">返回首页</button>
   </div>
 
-  <!-- 解锁页 -->
-  <div id="view-unlock" class="hidden">
-    <div class="pay-title">🔑 输入查看密码</div>
-    <div class="pay-sub" id="unlockSub">付款后我把查看密码发给你，输入即可看完整报告</div>
-    <div class="rp-block">
-      <h3>查看密码</h3>
-      <input id="codeInput" class="code-input" type="text" placeholder="输入你收到的查看密码" autocomplete="off" autocapitalize="characters" spellcheck="false">
-      <div class="code-msg" id="codeMsg"></div>
-      <button class="btn btn-primary" onclick="verifyCode()">解锁并查看报告</button>
-      <p class="note">密码在本机只需输入一次，之后可直接查看报告</p>
-    </div>
-    <div class="rp-block">
-      <h3>还没付款？</h3>
-      <button class="btn btn-primary hidden" id="buyFromUnlock" onclick="openPay()" style="margin-bottom:14px;">去平台付款 · 付款后自动解锁</button>
-      <img id="qrImg2" class="qr-small" alt="收款码入口二维码">
-      <p style="text-align:center;font-size:14px;color:#2bb673;font-weight:600;margin-top:8px;line-height:1.9;">用微信「扫一扫」或长按识别上方二维码<br>扫码后即可收到我的收款码，付款时请备注「测评」</p>
-      <p style="text-align:center;font-size:14px;margin-top:10px;line-height:1.9;">付款后回到本页输入查看密码即可解锁报告<br>基础版 ¥9.9 与深度版 ¥19.9 的密码不同，请认准金额<br><b style="color:#5a60e8;font-size:17px;" id="contactWx2"></b></p>
-    </div>
-    <button class="btn btn-ghost" onclick="show('view-pay')">返回套餐选择</button>
-  </div>
+  <!-- 解锁页已移除：付款成功后自动解锁，无需任何验证码/密码 -->
 
   <!-- 报告页 -->
   <div id="view-report" class="hidden">
@@ -260,11 +241,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neu
       </div>
       <div class="tip" id="payStatus" style="color:#5a60e8;font-weight:600;"></div>
       <p class="tip">无法长按识别？请截图本二维码，打开微信「扫一扫」从相册选取</p>
-      <div id="manualTips">
-        <p class="tip" style="color:#2bb673;font-weight:600;">第①步：用微信「扫一扫」或长按识别上方二维码<br>扫后你将收到我的收款码，对应金额付款并备注「测评」</p>
-        <button class="btn btn-primary" id="unlockCodeBtn" onclick="goToUnlock()">我已付款，输入密码看报告</button>
-        <p class="tip" style="margin-top:10px;">第②步：付款完成后，把查看密码输入即可解锁报告<br>基础版 ¥9.9 与深度版 ¥19.9 的密码不同，请认准金额</p>
-      </div>
       <a id="refreshTip" class="tip hidden" style="display:block;text-align:center;color:#5a60e8;text-decoration:underline;cursor:pointer;" onclick="checkNow()">已付款但没自动解锁？点此刷新</a>
     </div>
   </div>
@@ -2720,7 +2696,7 @@ let pendingCode = "";   // 链接里带的解锁码（用户还没做测评时�
 const ST_KEY = "psy_state_v1", USED_KEY = "psy_used_v1";
 
 function $(id){ return document.getElementById(id); }
-function show(view){ ["view-home","view-test","view-pay","view-unlock","view-report"].forEach(v=>$(v).classList.add("hidden")); $(view).classList.remove("hidden"); window.scrollTo(0,0); }
+function show(view){ ["view-home","view-test","view-pay","view-report"].forEach(v=>$(v).classList.add("hidden")); $(view).classList.remove("hidden"); window.scrollTo(0,0); }
 function backHome(){ show("view-home"); }
 
 /* ---------- 本机状态保存：付款后关掉页面再回来，报告还在 ---------- */
@@ -2784,7 +2760,7 @@ function finishTest(silent){
   if (pendingCode && !paid.basic){
     const c = pendingCode; pendingCode = "";
     useCode(c, {silent:true}).then(ok=>{
-      if (!ok) $("codeMsg").textContent = "链接中的解锁码未生效，请手动输入";
+      if (!ok){ const el=$("payStatus"); if(el) el.textContent="链接中的解锁码未生效，请重新付款解锁"; }
     });
   }
 }
@@ -2825,12 +2801,10 @@ function showStaticQr(){
   $("wxLink").classList.add("hidden");
   $("refreshTip").classList.add("hidden");
   $("wxBrowserTip").classList.add("hidden");
-  $("manualTips").classList.remove("hidden");
   $("payStatus").textContent = "";
 }
 async function createOnlineOrder(){
   $("qrImg").classList.add("hidden");
-  $("manualTips").classList.add("hidden");
   $("qrOnline").classList.add("hidden");
   $("wxLink").classList.add("hidden");
   $("refreshTip").classList.add("hidden");
@@ -2921,14 +2895,6 @@ function onPaid(level){
   show("view-report");
 }
 function closePay(){ clearInterval(pollTimer); $("payMask").style.display = "none"; }
-function goToUnlock(){
-  closePay();
-  $("unlockSub").textContent = plan==="basic"
-    ? "已付款 ¥9.9：输入客服发给你的查看密码（基础版）"
-    : "已付款 ¥19.9：输入客服发给你的查看密码（深度版）";
-  $("codeInput").value = ""; $("codeMsg").textContent = "";
-  show("view-unlock");
-}
 /* 银行卡信息渲染：没填就整块隐藏 */
 function applyBank(){
   const box = $("bankBox"); if (!box) return;
@@ -2981,22 +2947,21 @@ async function checkCode(raw){
 async function useCode(raw, opts){
   const o = opts || {};
   const r = await checkCode(raw);
-  if (r.err){ if (!o.silent) $("codeMsg").textContent = r.err; return false; }
+  if (r.err){ const el=$("payStatus"); if(el&&!o.silent) el.textContent=r.err; return false; }
   const used = getUsed().map(x=>String(x).toUpperCase().replace(/[^A-Z0-9]/g,""));
   if (!r.universal && used.indexOf(r.norm) >= 0){
     if (paid.basic){ buildReport(); show("view-report"); return true; }   // 本机已解锁：直接进报告
-    if (!o.silent) $("codeMsg").textContent = "⚠️ 该解锁码已在本机使用过";
+    if (!o.silent){ const el=$("payStatus"); if(el) el.textContent="该解锁码已在本机使用过"; }
     return false;
   }
   markUsed(r.norm);
   if (r.level === "deep"){ paid.deep = true; paid.basic = true; } else paid.basic = true;
   saveState();
-  if (!o.silent) $("codeMsg").textContent = "";
+  
   buildReport();
   show("view-report");
   return true;
 }
-async function verifyCode(){ return await useCode($("codeInput").value); }
 
 /* 从链接里取解锁码：?u=K7F2-9QDX （也兼容 ?code= / ?unlock= 以及 #u=） */
 function takeCodeFromUrl(){
@@ -3037,8 +3002,7 @@ window.addEventListener("load", ()=>{
         clearCodeFromUrl();
         if (ok) return;
         if (paid.basic){ buildReport(); show("view-report"); return; }
-        $("unlockSub").textContent = "链接里的解锁码未能识别，请核对后重新输入";
-        show("view-unlock");
+        show("view-pay");
       });
       return;
     }
