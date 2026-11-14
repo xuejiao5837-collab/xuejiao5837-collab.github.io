@@ -404,7 +404,7 @@
   <button class="back" onclick="closePage()">← <span data-i18n="back">返回</span></button>
   <div class="pg-inner">
     <h2 class="pg-title" data-i18n="m3">职业测评</h2>
-    <p class="pg-sub" data-i18n="t_sub">四个经典量表，在线答题，报告即刻生成。</p>
+    <p class="pg-sub" data-i18n="t_sub">五个经典测评，在线答题，报告即刻生成。</p>
     <div class="pg-rule"></div>
     <div class="tests">
       <a class="test" href="https://xuejiao5837-collab.github.io/deguojiaoge/" target="_blank">
@@ -426,6 +426,11 @@
         <h3 data-i18n="t_h4">盖洛普优势识别</h3>
         <p data-i18n="t_p4">34 项才干里你最突出的前五项是什么？把优势用在刀刃上。</p>
         <span class="go" data-i18n="t_go">去答题 →</span>
+      </a>
+      <a class="test" href="woshishui/">
+        <h3 data-i18n="t_h5">我是谁 · 人生匹配</h3>
+        <p data-i18n="t_p5">讲一分钟你的人生，AI 找出一位经历相似的真实人物和一位文学人物，看看谁和你活成了同一种故事。</p>
+        <span class="go" data-i18n="t_go">去玩 →</span>
       </a>
     </div>
     <div class="test-cta">
@@ -609,11 +614,12 @@ const I18N = {
       bk_intro:"这是我过去几年写下的一部短文集：命决定起点，运影响过程，而<b>读书和认知，决定终点</b>。全书围绕认知升级、赚钱逻辑、心态修炼与人际边界展开——每一篇都不长，但都是我亲自踩过的坑、想通的事。点击任意一篇，即可开始阅读。",
       bk_note:"* 本书目前以中文写作，外文版本计划中。",
       read:"阅读",close:"收起",
-      t_sub:"四个经典量表，在线答题，报告即刻生成。",
+      t_sub:"五个经典测评，在线答题，报告即刻生成。",
       t_h1:"霍兰德职业兴趣",t_p1:"你的兴趣类型是现实型、研究型还是艺术型？适合什么职业方向？",
       t_h2:"职业锚测评",t_p2:"你职业深处不肯退让的那根「锚」是什么？技术、管理还是自由？",
       t_h3:"MBTI 性格类型",t_p3:"16 型人格你是哪一型？性格如何影响你的工作方式？",
       t_h4:"盖洛普优势识别",t_p4:"34 项才干里你最突出的前五项是什么？把优势用在刀刃上。",
+      t_h5:"我是谁 · 人生匹配",t_p5:"讲一分钟你的人生，AI 找出一位经历相似的真实人物和一位文学人物，看看谁和你活成了同一种故事。",
       t_go:"去答题 →",t2:"开始测评 →",
       c1:"曲阜",c2:"菏泽",c3:"成都",c4:"德国",j1:"在这座小城出生",j2:"在这里读大学",j3:"在这里生活",j4:"现在住在这里",
       j_sub:"从曲阜到德国，一路向下滚动，跟着小人一起跑。",
@@ -639,11 +645,12 @@ const I18N = {
       bk_intro:"A collection of short essays I wrote over the past few years: fate decides where you start, luck shapes the road, but <b>learning and cognition decide where you arrive</b>. Each piece is short, personal, and tested by real life. (Currently in Chinese — translations planned.)",
       bk_note:"* Written in Chinese for now — English & German editions planned.",
       read:"read",close:"fold",
-      t_sub:"Four classic assessments — take them online, get your report instantly.",
+      t_sub:"Five classic assessments — take them online, get your report instantly.",
       t_h1:"Holland Career Interest",t_p1:"Realistic, investigative or artistic? Which careers actually fit you?",
       t_h2:"Career Anchors",t_p2:"What is the one anchor deep in your career you will never trade away?",
       t_h3:"MBTI Personality",t_p3:"Which of the 16 types are you? How does it shape how you work?",
       t_h4:"CliftonStrengths",t_p4:"What are your top 5 of 34 talents? Put strengths where they cut deepest.",
+      t_h5:"Who Am I · Life Match",t_p5:"Tell one minute of your life — AI finds a real person and a literary character who lived a similar story.",
       t_go:"Take it →",t2:"Take a test →",
       c1:"Qufu",c2:"Heze",c3:"Chengdu",c4:"Deutschland",j1:"where i was born",j2:"where i studied",j3:"where i lived",j4:"where i am now",
       j_sub:"From Qufu to Germany — scroll down and run along with the little runner.",
@@ -669,11 +676,12 @@ const I18N = {
       bk_intro:"Eine Sammlung kurzer Essays, die ich in den letzten Jahren geschrieben habe: Das Schicksal bestimmt den Start, das Glück den Weg — aber <b>Lernen und Erkenntnis bestimmen das Ziel</b>. Jeder Text ist kurz, persönlich und im echten Leben erprobt. (Derzeit auf Chinesisch — Übersetzungen geplant.)",
       bk_note:"* Derzeit auf Chinesisch — englische & deutsche Ausgabe in Planung.",
       read:"lesen",close:"einklappen",
-      t_sub:"Vier klassische Tests — online ausfüllen, Report sofort erhalten.",
+      t_sub:"Fünf klassische Tests — online ausfüllen, Report sofort erhalten.",
       t_h1:"Holland Berufsinteressen",t_p1:"Realistisch, untersuchend oder künstlerisch? Welche Berufe passen wirklich?",
       t_h2:"Karriereanker",t_p2:"Was ist der Anker in deiner Karriere, den du nie aufgibst?",
       t_h3:"MBTI Persönlichkeit",t_p3:"Welcher der 16 Typen bist du? Wie prägt das deine Arbeitsweise?",
       t_h4:"CliftonStrengths",t_p4:"Was sind deine Top 5 von 34 Talenten? Stärken gezielt einsetzen.",
+      t_h5:"Wer bin ich · Lebens-Match",t_p5:"Erzähle eine Minute aus deinem Leben — die KI findet einen echten Menschen und eine Romanfigur mit einem ähnlichen Schicksal.",
       t_go:"Test machen →",t2:"Test starten →",
       c1:"Qufu",c2:"Heze",c3:"Chengdu",c4:"Deutschland",j1:"hier geboren",j2:"hier studiert",j3:"hier gelebt",j4:"jetzt hier",
       j_sub:"Von Qufu bis Deutschland — scroll nach unten und lauf mit dem Läufer mit.",

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我是谁</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="我是谁">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#c2553a">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#f6f1e9;--fg:#2b2622;--mut:#8a7f74;--ac:#c2553a;--card:#fffaf2;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1a17;--fg:#efe7dc;--mut:#9a8f83;--ac:#e0735a;--card:#2a2622}}
+:root[data-theme="dark"]{--bg:#1d1a17;--fg:#efe7dc;--mut:#9a8f83;--ac:#e0735a;--card:#2a2622}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:"Songti SC","Noto Serif SC",serif}
+main{max-width:520px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top,0px)) 22px calc(40px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;text-align:center}
+h1{font-size:26px;margin:18px 0 6px;letter-spacing:4px}
+.sub{color:var(--mut);font-size:14px;line-height:1.7;margin:0 0 30px}
+#mic{width:132px;height:132px;border-radius:50%;border:0;background:var(--ac);color:#fff;font-size:44px;cursor:pointer;box-shadow:0 8px 28px rgba(194,85,58,.35);transition:transform .2s}
+#mic.on{animation:p 1.3s infinite}
+@keyframes p{50%{transform:scale(1.08);box-shadow:0 0 0 18px rgba(194,85,58,.15)}}
+#hint{margin:16px 0 8px;color:var(--mut);font-size:14px;min-height:20px}
+#txt{width:100%;box-sizing:border-box;min-height:110px;border:1px solid var(--mut);border-radius:12px;background:var(--card);color:var(--fg);padding:12px;font:inherit;font-size:15px;line-height:1.7;resize:vertical}
+#go{display:inline-block;margin-top:12px;padding:11px 34px;border:0;border-radius:24px;background:var(--fg);color:var(--bg);font:inherit;font-size:16px;cursor:pointer}
+#res{width:100%;margin-top:26px;text-align:left}
+.card{background:var(--card);border-radius:16px;padding:20px;line-height:1.9;font-size:15px;margin-bottom:16px}
+.tag{display:inline-block;font-size:12px;color:var(--ac);border:1px solid var(--ac);border-radius:10px;padding:1px 9px;margin-bottom:8px}
+.nm{font-size:22px;margin:0 0 2px}.sb{color:var(--mut);font-size:13px;margin-bottom:10px}
+.lb{font-weight:bold;color:var(--ac);margin:12px 0 4px;font-size:14px}
+ol{margin:0;padding-left:20px}li{margin:3px 0}
+.src{color:var(--mut);font-size:13px;margin-top:10px}
+.cm{border:1px dashed var(--mut);background:transparent}
+.note{color:var(--mut);font-size:12px;text-align:center}
+#add{margin-top:26px;padding:10px 22px;border:1px solid var(--ac);border-radius:24px;background:transparent;color:var(--ac);font:inherit;font-size:14px;cursor:pointer}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:50}
+#ov.show{display:flex}
+#sheet{width:100%;max-width:520px;box-sizing:border-box;background:var(--card);color:var(--fg);border-radius:20px 20px 0 0;padding:22px 22px calc(22px + env(safe-area-inset-bottom,0px));text-align:left;max-height:85%;overflow-y:auto}
+#sheet h3{margin:0 0 10px;font-size:18px}
+#sheet ol{line-height:1.9;font-size:15px}
+#sheet .warn{background:rgba(194,85,58,.12);border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.7;margin-bottom:12px}
+.row{display:flex;gap:8px;margin:12px 0;align-items:center}
+.row input{flex:1;min-width:0;border:1px solid var(--mut);border-radius:10px;background:var(--bg);color:var(--fg);padding:9px 10px;font:inherit;font-size:13px}
+.row button,#close,.sbtn{border:0;border-radius:10px;background:var(--ac);color:#fff;font:inherit;font-size:14px;padding:9px 14px;cursor:pointer}
+#close{display:block;width:100%;margin-top:8px;background:var(--fg);color:var(--bg)}
+#tip{margin-top:34px;padding-top:22px;border-top:1px dashed var(--mut);width:100%;text-align:center}
+#tip p{margin:0 0 12px;color:var(--mut);font-size:14px;line-height:1.7}
+#ov2{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:60;padding:20px;box-sizing:border-box}
+#ov2.show{display:flex}
+#box2{width:100%;max-width:360px;box-sizing:border-box;background:var(--card);color:var(--fg);border-radius:20px;padding:22px;text-align:left;max-height:92%;overflow-y:auto}
+#box2 h3{margin:0 0 12px;font-size:18px}
+#box2 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+#box2 input{width:100%;box-sizing:border-box;border:1px solid var(--mut);border-radius:10px;background:var(--bg);color:var(--fg);padding:9px 10px;font:inherit;font-size:13px}
+#cfgSave{display:block;width:100%;margin-top:14px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:inherit;font-size:15px;padding:10px;cursor:pointer}
+#close2{display:block;width:100%;margin-top:8px;border:0;border-radius:10px;background:var(--fg);color:var(--bg);font:inherit;font-size:14px;padding:9px 14px;cursor:pointer}
+#gear{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:40;border:0;background:transparent;color:var(--mut);font-size:22px;cursor:pointer;padding:8px}
+#tip .paywrap{display:none}
+</style>
+</head>
+<body>
+<button id="gear" aria-label="设置">⚙︎</button>
+<main>
+<h1>我是谁</h1>
+<p class="sub">一分钟讲述你的人生，快速匹配历史名人，<br>看看谁和你拥有相似的人生。<br>也可以只聊爱好：喜欢什么动物、吃什么、喝什么、玩什么，都能匹配。</p>
+<button id="mic" aria-label="语音">🎙</button>
+<div id="hint">点击开始讲述，讲人生或聊爱好都行</div>
+<textarea id="txt" placeholder="也可以在这里打字：讲讲你的经历，或说说你的爱好、喜欢什么动物、吃什么、玩什么……"></textarea>
+<button id="go">发送</button>
+<div id="res"></div>
+<button id="add">📲 添加到手机桌面</button>
+<div id="tip"><p>创作不易，欢迎打赏，支持作者继续做出更好玩的东西。</p><p class="note">（打赏入口待接入收款码）</p></div>
+</main>
+<div id="ov"><div id="sheet"><h3>添加到手机桌面</h3><div id="guide"></div>
+<div class="row"><input id="lnk" readonly><button id="cp">复制链接</button></div>
+<div class="note">安装后和普通 APP 一样：有独立图标、全屏运行。</div>
+<button id="close">知道了</button></div></div>
+<div id="ov2"><div id="box2"><h3>⚙︎ AI 接口设置</h3>
+<div class="note">填写一个 OpenAI 兼容接口（仅保存在本机，不会上传）。</div>
+<label>接口地址 Base URL（如 https://api.xxx.com/v1）</label>
+<input id="cfgBase" placeholder="https://api.xxx.com/v1">
+<label>API Key</label>
+<input id="cfgKey" type="password" placeholder="sk-...">
+<label>模型名称</label>
+<input id="cfgModel" placeholder="如 gpt-4o-mini / glm-4-flash">
+<button id="cfgSave">保存</button>
+<button id="close2">关闭</button></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const mic=$("mic"),hint=$("hint"),txt=$("txt"),go=$("go"),res=$("res");
+
+/* ---------- PWA ---------- */
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+
+/* ---------- 设置 ---------- */
+const cfg={base:localStorage.getItem("wd_base")||"",key:localStorage.getItem("wd_key")||"",model:localStorage.getItem("wd_model")||""};
+function openCfg(){$("cfgBase").value=cfg.base;$("cfgKey").value=cfg.key;$("cfgModel").value=cfg.model;$("ov2").classList.add("show")}
+$("gear").onclick=openCfg;
+$("cfgSave").onclick=()=>{cfg.base=$("cfgBase").value.trim().replace(/\/+$/,"");cfg.key=$("cfgKey").value.trim();cfg.model=$("cfgModel").value.trim();
+ localStorage.setItem("wd_base",cfg.base);localStorage.setItem("wd_key",cfg.key);localStorage.setItem("wd_model",cfg.model);
+ $("ov2").classList.remove("show");hint.textContent="设置已保存，可以开始啦"};
+$("close2").onclick=()=>$("ov2").classList.remove("show");
+$("ov2").onclick=e=>{if(e.target===$("ov2"))$("ov2").classList.remove("show")};
+
+/* ---------- 语音（Web Speech API） ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null,listening=false;
+if(SR){
+ rec=new SR();rec.lang="zh-CN";rec.continuous=true;rec.interimResults=true;
+ rec.onresult=e=>{let fin="",mid="";
+  for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;(e.results[i].isFinal?fin=fin+t:mid=mid+t)}
+  txt.value=txt.dataset.base?txt.dataset.base+fin+mid:(fin+mid||txt.value);
+  if(fin)txt.dataset.base=(txt.dataset.base||"")+fin;
+  txt.scrollIntoView({block:"nearest"})};
+ rec.onend=()=>{listening=false;mic.classList.remove("on");hint.textContent=txt.value.trim()?"可以修改，或点发送":"点击开始讲述，讲人生或聊爱好都行"};
+ rec.onerror=e=>{listening=false;mic.classList.remove("on");hint.textContent=e.error==="not-allowed"?"未获得麦克风权限，可直接打字":"语音出错了，可直接打字"};
+ mic.onclick=()=>{ if(listening){rec.stop();return}
+  try{txt.dataset.base=txt.value.trim()?txt.value.trim()+" ":"";rec.start();listening=true;mic.classList.add("on");hint.textContent="正在听……讲完再点一下"}catch(e){hint.textContent="语音启动失败，可直接打字"}};
+}else{
+ hint.textContent="此浏览器不支持语音，请直接打字";mic.onclick=()=>txt.focus();
+}
+
+/* ---------- AI 匹配 ---------- */
+const eS=s=>String(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const ol=a=>"<ol>"+(a||[]).map(x=>"<li>"+eS(x)+"</li>").join("")+"</ol>";
+go.onclick=async()=>{
+ const story=txt.value.trim();
+ if(story.length<2){hint.textContent="再多说几个字吧";return}
+ if(!cfg.base||!cfg.key){openCfg();hint.textContent="先填好 AI 接口设置（保存后自动开始）";return}
+ if(listening&&rec)rec.stop();
+ res.innerHTML='<div class="card">正在翻阅历史与书卷，寻找与你相似的灵魂……</div>';go.disabled=true;
+ const sys='你是一位温暖、有文学素养的倾听者。任务：根据用户自述找出两位与他最相似的人：①一位真实存在的现实人物（历史或当代均可；若是政治人物，只做事实性对照，不评价立场）；②一位文学作品中的虚构人物。两人必须同时出现。对比维度完全按人生经历/爱好的相似关系选择，不要按地域国籍归类。对比的维度选最贴合其自述的：讲人生经历时用经历维度（如漂泊迁徙、挫折、转折、亲情、理想与现实）；若只说了爱好，就找真实有据、同样热爱这些事物的人物；若涉及迁徙漂泊，必须按先后顺序写出地点。严格要求：事实必须确信；出处只写真实存在的作品、自传、传记或文章（如《从文自传》《湘行散记》），书名用《》；没把握就写"出处请自行核对"，绝不编造。只输出JSON，不要代码块：{"you":["从用户自述中提炼的要点（经历按时间，喜好按类别），2-6条，每条一句"],"real":{"name":"","identity":"一句话身份","path":["与用户相关的经历、习惯或喜好故事，经历类按时间，3-7条"],"compare":"80-140字，具体对照你与他在该维度上的相似与不同","source":"出处：作品/文章名"},"fiction":{"name":"","work":"《作品名》","author":"作者","path":["人物相关的经历或喜好，3-6条"],"compare":"80-140字，对照","source":"出处：作品名及章节或情节"},"comfort":"100-160字，温柔真诚，呼应其具体经历，借这两位人物的共同点来鼓励他"}';
+ try{
+  const r0=await fetch(cfg.base+"/chat/completions",{method:"POST",
+   headers:{"Content-Type":"application/json","Authorization":"Bearer "+cfg.key},
+   body:JSON.stringify({model:cfg.model||"gpt-4o-mini",messages:[{role:"system",content:sys},{role:"user",content:story}],temperature:0.8})});
+  if(!r0.ok)throw new Error("HTTP "+r0.status);
+  const d=await r0.json();
+  let s=d.choices[0].message.content.trim().replace(/^```(json)?/,"").replace(/```$/,"").trim();
+  const m=s.match(/\{[\s\S]*\}/);if(m)s=m[0];
+  const r=JSON.parse(s);
+  res.innerHTML=`<div class="card"><div class="lb">你的特点</div>${ol(r.you)}</div>
+  <div class="card"><span class="tag">现实人物</span><h2 class="nm">${eS(r.real.name)}</h2><div class="sb">${eS(r.real.identity)}</div><div class="lb">ta的故事</div>${ol(r.real.path)}<div class="lb">与你对比</div>${eS(r.real.compare)}<div class="src">📖 ${eS(r.real.source)}</div></div>
+  <div class="card"><span class="tag">文学人物</span><h2 class="nm">${eS(r.fiction.name)}</h2><div class="sb">${eS(r.fiction.work)} · ${eS(r.fiction.author)}</div><div class="lb">ta的故事</div>${ol(r.fiction.path)}<div class="lb">与你对比</div>${eS(r.fiction.compare)}<div class="src">📖 ${eS(r.fiction.source)}</div></div>
+  <div class="card cm">💛 ${eS(r.comfort)}</div><div class="note">史实与出处由 AI 生成，引用前请自行核对</div>`;
+ }catch(err){res.innerHTML='<div class="card">暂时没能生成（'+eS(err.message||"网络错误")+'）。<br>请点右上角 ⚙︎ 检查接口设置，稍后再试。</div>'}
+ go.disabled=false;
+};
+
+/* ---------- 添加到桌面 ---------- */
+(()=>{
+ const ua=navigator.userAgent;
+ const isIOS=/iPhone|iPad|iPod/i.test(ua);
+ const isAnd=/Android/i.test(ua);
+ const isWX=/MicroMessenger/i.test(ua);
+ const standalone=navigator.standalone||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);
+ const LINK=location.href.split("#")[0];
+ const add=$("add"),ov=$("ov"),guide=$("guide"),lnk=$("lnk");
+ if(standalone){add.style.display="none";return}
+ lnk.value=LINK;
+ let deferred=null;
+ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e});
+ const wx='<div class="warn">你正在微信里打开，微信不支持添加桌面。请先点右上角"···"，选择"在浏览器中打开"（或复制下面的链接到 Safari / Chrome），再按下面步骤操作。</div>';
+ function render(){
+  let h=isWX?wx:"";
+  if(isIOS)h+='<ol><li>用 <b>Safari</b> 打开本页面。</li><li>点底部中间的<b>"分享"</b>按钮（方框加向上箭头）。</li><li>往下滑，选<b>"添加到主屏幕"</b>。</li><li>点右上角<b>"添加"</b>，桌面上就有图标了。</li></ol>';
+  else if(isAnd)h+='<ol><li>用 <b>Chrome</b>（或系统自带浏览器）打开本页面。</li><li>点右上角<b>"⋮"</b>菜单。</li><li>选<b>"添加到主屏幕"</b>或<b>"安装应用"</b>。</li><li>点<b>"添加"</b>确认，桌面上就有图标了。</li></ol>';
+  else h+='<div class="warn">这是电脑端。请用手机打开下面的链接，再按手机系统的步骤添加：<br>iPhone（Safari）：分享 → 添加到主屏幕<br>安卓（Chrome）：菜单 → 添加到主屏幕</div>';
+  guide.innerHTML=h;
+ }
+ add.onclick=async()=>{
+  if(deferred){try{deferred.prompt();await deferred.userChoice;deferred=null;return}catch(e){}}
+  render();ov.classList.add("show");
+ };
+ $("close").onclick=()=>ov.classList.remove("show");
+ ov.onclick=e=>{if(e.target===ov)ov.classList.remove("show")};
+ $("cp").onclick=async()=>{
+  const b=$("cp");
+  try{await navigator.clipboard.writeText(LINK);b.textContent="已复制"}
+  catch(e){lnk.select();lnk.setSelectionRange(0,999);b.textContent="请长按复制"}
+  setTimeout(()=>b.textContent="复制链接",2000);
+ };
+})();
+</script>
+</body>
+</html>
