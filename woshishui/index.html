@@ -100,7 +100,7 @@ const $=id=>document.getElementById(id);
 const mic=$("mic"),hint=$("hint"),txt=$("txt"),go=$("go"),res=$("res");
 
 /* ---------- PWA ---------- */
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});caches&&caches.keys&&caches.keys().then(ks=>ks.forEach(k=>{if(!/^woshishui-v4$/.test(k))caches.delete(k)}))})}
 
 /* ---------- 设置 ---------- */
 const cfg={base:localStorage.getItem("wd_base")||"",key:localStorage.getItem("wd_key")||"",model:localStorage.getItem("wd_model")||""};

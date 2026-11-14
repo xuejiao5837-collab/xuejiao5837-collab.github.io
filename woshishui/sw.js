@@ -1,4 +1,4 @@
-const CACHE = "woshishui-v3";
+const CACHE = "woshishui-v4";
 const ASSETS = ["./", "./index.html", "./manifest.json","./qrcode.png"];
 
 self.addEventListener("install", e => {
