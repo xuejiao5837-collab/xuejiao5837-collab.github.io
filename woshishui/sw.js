@@ -1,5 +1,5 @@
-const CACHE = "woshishui-v2";
-const ASSETS = ["./", "./index.html", "./manifest.json"];
+const CACHE = "woshishui-v3";
+const ASSETS = ["./", "./index.html", "./manifest.json","./qrcode.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
