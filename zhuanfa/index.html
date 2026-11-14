@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>验证码转发</title>
+<style>
+:root{--bg:#f2f5f8;--fg:#1f2937;--mut:#6b7280;--ac:#2563eb;--ac2:#1d4ed8;--card:#ffffff;--ok:#16a34a;--warn:#d97706;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#e2e8f0;--mut:#94a3b8;--ac:#3b82f6;--ac2:#60a5fa;--card:#1e293b;--ok:#22c55e;--warn:#f59e0b}}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:-apple-system,"PingFang SC","Noto Sans SC",sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:480px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 18px calc(46px + env(safe-area-inset-bottom,0px))}
+h1{font-size:22px;margin:6px 0 4px;letter-spacing:1px}
+.sub{color:var(--mut);font-size:13px;line-height:1.7;margin:0 0 20px}
+.card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+label{display:block;font-size:13px;color:var(--mut);margin:0 0 6px;font-weight:600}
+textarea{width:100%;box-sizing:border-box;min-height:96px;border:1.5px solid var(--mut);border-radius:12px;background:var(--bg);color:var(--fg);padding:12px;font:inherit;font-size:15px;line-height:1.7;resize:vertical}
+textarea:focus,input:focus{outline:none;border-color:var(--ac)}
+input{width:100%;box-sizing:border-box;border:1.5px solid var(--mut);border-radius:12px;background:var(--bg);color:var(--fg);padding:11px 12px;font:inherit;font-size:15px}
+.row{display:flex;gap:10px;margin-top:12px}
+.btn{flex:1;border:0;border-radius:12px;background:var(--ac);color:#fff;font:inherit;font-size:15px;font-weight:600;padding:12px;cursor:pointer;transition:background .15s}
+.btn:active{background:var(--ac2)}
+.btn.ghost{background:transparent;color:var(--ac);border:1.5px solid var(--ac);flex:0 0 auto;padding:12px 16px}
+#codeBox{display:none;text-align:center;padding:22px 18px}
+#codeBox.show{display:block}
+#codeNum{font-size:44px;font-weight:800;letter-spacing:8px;color:var(--ac);margin:6px 0 2px;user-select:all}
+#codeLbl{font-size:12px;color:var(--mut);letter-spacing:2px}
+#paste{margin-top:10px}
+#status{margin-top:12px;font-size:13px;line-height:1.7;min-height:18px;color:var(--mut)}
+#status.ok{color:var(--ok);font-weight:600}
+#status.warn{color:var(--warn);font-weight:600}
+.how{font-size:13px;color:var(--mut);line-height:1.9;margin:0}
+.how b{color:var(--fg)}
+hr{border:0;border-top:1px dashed var(--mut);opacity:.4;margin:14px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>📨 验证码转发</h1>
+<p class="sub">把收到的信息粘贴进来，自动识别验证码，一键转发到你的邮箱。</p>
+
+<div class="card">
+  <label>收件邮箱（保存在本机）</label>
+  <input id="mail" type="email" placeholder="例如 823106294@qq.com">
+</div>
+
+<div class="card">
+  <label>收到的信息（短信 / 消息原文）</label>
+  <textarea id="txt" placeholder="粘贴或输入信息，例如：您的验证码是556677，5分钟内有效……"></textarea>
+  <div class="row">
+    <button class="btn" id="forward">📤 转发到邮箱</button>
+    <button class="btn ghost" id="mailapp">✉️ 邮件App</button>
+  </div>
+  <div id="status"></div>
+</div>
+
+<div class="card" id="codeBox">
+  <div id="codeLbl">识别到的验证码</div>
+  <div id="codeNum">—</div>
+  <div class="row"><button class="btn" id="copyCode">📋 复制验证码</button></div>
+</div>
+
+<div class="card">
+  <p class="how"><b>怎么用</b><br>
+  ① 第一次使用：填好收件邮箱 → 粘贴任意信息 → 点「转发到邮箱」，<b>FormSubmit 会先发一封激活邮件</b>到你的邮箱，点里面的 Activate 按钮激活一次（只需一次）<br>
+  ② 激活后：以后每次点「转发到邮箱」，邮件<b>自动送达</b>，无需再确认<br>
+  ③ 「邮件App」按钮：直接帮你打开邮件应用并填好内容，手动发送（100% 可用的兜底方式）<hr>
+  <b>提醒</b>：网页本身收不到手机短信（浏览器无此权限），「收到短信自动转发」仍需手机上的转发 APP；本网站负责「拿到信息后 → 秒转邮箱」。</p>
+</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const txt=$("txt"),mail=$("mail"),status=$("status");
+
+mail.value=localStorage.getItem("cf_mail")||"";
+mail.oninput=()=>localStorage.setItem("cf_mail",mail.value.trim());
+
+/* 提取验证码：3位以上连续数字（优先4-8位、靠近"验证码/校验/code"字样） */
+function extractCode(s){
+  const near=[];let m;
+  const reNear=/([\u4e00-\u9fa5a-z]{0,8}(?:验证码|校验码|动态码|code)[^\d]{0,10})(\d{3,8})/gi;
+  while((m=reNear.exec(s)))near.push(m[2]);
+  if(near.length)return near[0];
+  const all=s.match(/\d{3,8}/g)||[];
+  const counts={};all.forEach(x=>counts[x]=(counts[x]||0)+1);
+  all.sort((a,b)=>{
+    const la=a.length>=4&&a.length<=8?0:1, lb=b.length>=4&&b.length<=8?0:1;
+    if(la!==lb)return la-lb;
+    return (counts[b]-counts[a])||(all.indexOf(b)-all.indexOf(a));
+  });
+  return all[0]||"";
+}
+
+function showStatus(msg,cls){status.textContent=msg;status.className=cls||""}
+
+function render(){
+  const s=txt.value.trim(),code=extractCode(s);
+  $("codeBox").classList.toggle("show",!!code);
+  if(code)$("codeNum").textContent=code;
+  return code;
+}
+txt.oninput=render;
+
+$("copyCode").onclick=async()=>{
+  const c=$("codeNum").textContent,b=$("copyCode");
+  try{await navigator.clipboard.writeText(c);b.textContent="✅ 已复制"}
+  catch(e){b.textContent="请长按验证码复制"}
+  setTimeout(()=>b.textContent="📋 复制验证码",1800);
+};
+
+/* FormSubmit 自动发信（首次需激活） */
+$("forward").onclick=async()=>{
+  const to=mail.value.trim(),s=txt.value.trim(),code=render();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){showStatus("请先填写正确的收件邮箱","warn");mail.focus();return}
+  if(!s){showStatus("请先粘贴收到的信息","warn");txt.focus();return}
+  showStatus("正在转发……");
+  const subject=(code?"验证码 "+code:"消息转发")+" - 来自验证码转发网页";
+  try{
+    const r=await fetch("https://formsubmit.co/ajax/"+encodeURIComponent(to),{
+      method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({_subject:subject,_template:"box",_captcha:"false",
+        "内容":s,"验证码":code||"—","转发时间":new Date().toLocaleString("zh-CN")})
+    });
+    const d=await r.json().catch(()=>({}));
+    if(r.ok&&(d.success==="true"||d.success===true)){
+      showStatus(code?("✅ 已转发到 "+to+"（验证码 "+code+"）。若首次使用，请先去邮箱点激活邮件。"):("✅ 已转发到 "+to),"ok");
+    }else{
+      throw new Error(d.message||("HTTP "+r.status));
+    }
+  }catch(e){
+    showStatus("自动转发失败（"+(e.message||"网络错误")+"）。可点「✉️ 邮件App」兜底发送。","warn");
+  }
+};
+
+/* mailto 兜底 */
+$("mailapp").onclick=()=>{
+  const to=mail.value.trim(),s=txt.value.trim(),code=render();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){showStatus("请先填写正确的收件邮箱","warn");mail.focus();return}
+  const subject=encodeURIComponent((code?"验证码 "+code:"消息转发"));
+  const body=encodeURIComponent(s+"\n\n—— 来自验证码转发网页 "+new Date().toLocaleString("zh-CN"));
+  location.href="mailto:"+to+"?subject="+subject+"&body="+body;
+  showStatus("已打开邮件应用，内容已填好，点发送即可。","");
+};
+</script>
+</body>
+</html>
