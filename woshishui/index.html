@@ -60,7 +60,7 @@ ol{margin:0;padding-left:20px}li{margin:3px 0}
 </style>
 </head>
 <body>
-<button id="gear" aria-label="设置">⚙︎</button>
+<button id="gear" aria-label="AI增强设置">✨</button>
 <main>
 <h1>我是谁</h1>
 <p class="sub">一分钟讲述你的人生，快速匹配历史名人，<br>看看谁和你拥有相似的人生。<br>也可以只聊爱好：喜欢什么动物、吃什么、喝什么、玩什么，都能匹配。</p>
@@ -76,8 +76,8 @@ ol{margin:0;padding-left:20px}li{margin:3px 0}
 <div class="row"><input id="lnk" readonly><button id="cp">复制链接</button></div>
 <div class="note">安装后和普通 APP 一样：有独立图标、全屏运行。</div>
 <button id="close">知道了</button></div></div>
-<div id="ov2"><div id="box2"><h3>⚙︎ AI 接口设置</h3>
-<div class="note">填写一个 OpenAI 兼容接口（仅保存在本机，不会上传）。</div>
+<div id="ov2"><div id="box2"><h3>⚙︎ AI 增强（可选）</h3>
+<div class="note">不填也能用（内置本地匹配）。填了 OpenAI 兼容接口后，匹配会更聪明、更个性化。</div>
 <label>接口地址 Base URL（如 https://api.xxx.com/v1）</label>
 <input id="cfgBase" placeholder="https://api.xxx.com/v1">
 <label>API Key</label>
@@ -121,30 +121,165 @@ if(SR){
  hint.textContent="此浏览器不支持语音，请直接打字";mic.onclick=()=>txt.focus();
 }
 
-/* ---------- AI 匹配 ---------- */
+/* ---------- 本地匹配引擎（零配置，打开即用） ---------- */
 const eS=s=>String(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 const ol=a=>"<ol>"+(a||[]).map(x=>"<li>"+eS(x)+"</li>").join("")+"</ol>";
+
+/* 关键词 → 经历标签 */
+const KW=[
+ [/破产|欠债|负债|赔光|亏光|生意失败|倒闭|欠钱|还债/,"bankrupt"],
+ [/大器晚成|五十岁|六十岁|七十岁|晚年才|后半生才|中年才/,"latebloom"],
+ [/转行|换了行业|从头学|改行|跨界|重新开始|重来/,"career_change"],
+ [/创业|开公司|做生意|开店|产品|做生意失败/,"startup"],
+ [/跌倒|失败|挫折|低谷|重新站|爬起来|东山再起/,"comeback"],
+ [/漂泊|流离|颠沛|流浪|辗转|搬家|奔波|居无定所/,"exile"],
+ [/移民|出国|远走|离开家乡|背井离乡|异国|德国|海外|出国留学|留学/,"migration"],
+ [/监狱|坐牢|入狱|冤狱|劳改|流放|审查|迫害/,"prison"],
+ [/贫穷|贫困|没钱|穷|吃不饱|家境|寒门|苦日子/,"poverty"],
+ [/孤儿|幼年丧|从小丧|父母离异|单亲|没人管/,"orphan"],
+ [/生病|疾病|癌症|重病|住院|病痛|慢性病/,"illness"],
+ [/残疾|失明|失聪|轮椅|聋|盲|行动不便/,"disability"],
+ [/自学|没上过学|辍学|没读多少书|学历|读书少|自修/,"selftaught"],
+ [/农村|乡下|村里|种地|务农|山村|小县城|小镇/,"rural"],
+ [/无人知晓|埋没|不被认可|被嘲笑|被质疑|没人理解|冷板凳/,"obscurity"],
+ [/出名|成名|走红|名气|名声|光环|被称为/,"fame"],
+ [/孤独|一个人|独处|不合群|没人陪|寂寞/,"solitary"],
+ [/狗|猫|鸟|马|动物|宠物|养狗|养猫|爱动物/,"animal"],
+ [/吃|美食|做饭|喝|茶|咖啡|酒|菜|厨|馋/,"food"],
+ [/旅行|远行|走路|徒步|在路上|跑船|航行|自驾/,"travel"],
+ [/写作|写文章|写书|日记|笔|文字|投稿|公众号|博客/,"writing"],
+ [/画画|绘画|艺术|设计|雕塑|摄影|审美/,"art"],
+ [/音乐|弹琴|钢琴|吉他|唱歌|歌曲|作曲|听歌/,"music"],
+ [/研究|科学|发明|钻研|实验|琢磨|较真|求知/,"science"],
+ [/海|海边|出海|渔|船上|航行/,"sea"],
+ [/理想|梦想|信念|坚持|执念|认定|初心/,"dreamer"],
+ [/失恋|离婚|分手|爱情|爱人走了|失去爱/,"love_loss"],
+ [/丧偶|老伴|妻子走了|丈夫走了|爱人去世|失去伴侣/,"widow"],
+ [/丧子|失去孩子|孩子走了|白发人送黑发人/,"childloss"],
+ [/戒|上瘾|酗酒|烟瘾|赌|克制|自律/,"addiction"],
+ [/高龄|八十|九十|依然|还在这把年纪|身体还硬朗/,"longevity"],
+ [/战争|战乱|逃难|轰炸|兵荒马乱/,"war"]
+];
+const PH={bankrupt:"经历过破产负债的谷底",latebloom:"属于大器晚成的路子",career_change:"敢于中年转行从头再来",startup:"在创业与生意里沉浮过",comeback:"跌倒过又自己爬了起来",exile:"有过漂泊流离的岁月",migration:"远离过故乡、在异乡落脚",prison:"尝过失去自由的滋味",poverty:"从贫寒日子里走出来",orphan:"小小年纪就尝过离散",illness:"与疾病长期交过手",disability:"带着身体的限制生活",selftaught:"靠自己自学闯出来",rural:"从乡土之间走出来",obscurity:"被埋没、被质疑过很久",fame:"体会过成名的光环与代价",solitary:"习惯与孤独相处",animal:"喜欢和动物待在一起",food:"是个懂吃爱喝的人",travel:"一直走在路上",writing:"靠文字表达自己",art:"对美和艺术有执念",music:"音乐在心里占着位置",science:"凡事喜欢钻研求真",sea:"与江河湖海有缘分",dreamer:"是个不肯放弃的理想主义者",love_loss:"在感情里摔过跤",widow:"经历过痛失爱人",childloss:"经历过痛失至亲",addiction:"和自己的恶习较量过",longevity:"一把年纪依然滚烫",war:"在乱世中求过生存"};
+
+/* 人物库：r=真实 f=文学；tg=标签权重；p=故事；s=出处；b=共鸣语 */
+const C=[
+{t:"r",n:"褚时健",d:"「褚橙」创始人，曾经的烟草大王",tg:{bankrupt:3,prison:2,latebloom:3,career_change:2,startup:3,comeback:3,rural:1,longevity:2},p:["51岁把玉溪卷烟厂做成亚洲第一，被称为「烟草大王」","71岁被查、无期徒刑，女儿在狱中自尽，人生跌到最底","74岁保外就医，上山承包2400亩荒山种橙子","84岁「褚橙」进京，人称「励志橙」，85岁身家过亿"],s:"《褚时健传》",b:"他证明了一件事：只要人还在，谷底就只是下一次出发的起点。"},
+{t:"r",n:"苏东坡",d:"北宋文学家，一生被贬谪的乐天派",tg:{exile:3,food:3,writing:3,fame:2,comeback:2,solitary:2,longevity:1,childloss:1,love_loss:1},p:["一生三次被贬：黄州、惠州，最后贬到海南儋州","越贬越远，却越活越豁达，在黄州种地自号「东坡」","发明东坡肉，写「日啖荔枝三百颗」，把苦日子过出滋味","妻子早逝，写「十年生死两茫茫」悼亡"],s:"《苏东坡传》（林语堂）",b:"他的本事是把每一种流离都过成诗，苦水也能酿出回甘。"},
+{t:"r",n:"沈从文",d:"作家，从小城走出的文学大师",tg:{poverty:2,selftaught:3,rural:3,migration:2,writing:3,war:1,obscurity:2,career_change:2},p:["湘西凤凰人，只有小学文凭，当兵流浪多年","20岁北漂北京，冬天生不起炉子，坚持写作","自学成为作家，写出《边城》《湘行散记》","后来弃文从物，转行研究古代服饰，又成权威"],s:"《从文自传》",b:"他和你一样：起点低、没人脉，靠一股不服输的韧劲把路走出来。"},
+{t:"r",n:"史铁生",d:"作家，轮椅上的哲人",tg:{illness:3,disability:3,orphan:1,writing:3,solitary:2,dreamer:2,childloss:1},p:["21岁双腿瘫痪，一度天天想死","在荒芜的地坛里想了几年生死，想明白「死是必然会降临的节日」","靠写作活着，写出《我与地坛》《病隙碎笔》","晚年尿毒症，每周透析，依然幽默通透"],s:"《我与地坛》",b:"他用残缺的身体活出了最完整的灵魂，把苦难写成了光。"},
+{t:"r",n:"哈兰·山德士",d:"肯德基（KFC）创始人",tg:{latebloom:3,startup:2,bankrupt:2,comeback:3,obscurity:2,poverty:2,childloss:1},p:["一生做过士兵、铁路工人、保险员、加油站小贩","40多岁在加油站旁开餐馆，66岁时餐馆因高速改道倒闭","66岁揣着105美元社保金，开车走遍美国推销炸鸡秘方","被拒绝了1009次，终于有人愿意合作，89岁身家亿万美元"],s:"《肯德基创始人自传》",b:"66岁从零开始都能成，你任何时候开始都不算晚。"},
+{t:"r",n:"J.K.罗琳",d:"《哈利·波特》作者",tg:{poverty:2,orphan:1,widow:1,love_loss:2,obscurity:2,writing:3,comeback:2,single:1,solitary:1},p:["离异带娃，靠救济金生活，住在没暖气的公寓里","在咖啡馆的角落写《哈利·波特》，女儿睡在旁边的手推车里","书稿被12家出版社拒绝，差点放弃","后来成为史上最畅销的作家之一"],s:"《哈利·波特》及罗琳传记",b:"在最深的谷底写字的人，往往写得出最有魔力的故事。"},
+{t:"r",n:"亚伯拉罕·林肯",d:"美国第16任总统",tg:{poverty:2,selftaught:2,bankrupt:2,comeback:3,obscurity:2,love_loss:2,childloss:2,solitary:1},p:["出身贫寒，母亲9岁时去世，几乎没上过学","经商破产、恋人早逝、多次竞选失败、精神崩溃过一次","一生输了很多次，52岁当选总统","任内经历丧子之痛，仍坚持走完最难的路"],s:"《林肯传》（卡尔·桑德堡）",b:"他的人生说明书是：失败不是终点，只是排练。"},
+{t:"r",n:"梵高",d:"后印象派画家",tg:{art:3,obscurity:3,poverty:2,solitary:3,love_loss:2,illness:2,selftaught:2},p:["27岁才开始画画，一生只卖出一幅画","穷到靠弟弟接济，一天只吃几口面包","画了800多幅油画，生前无人认可","死后成为世界最贵、最受爱的画家之一"],s:"《亲爱的提奥》（梵高书信集）",b:"不被看见的日子最难熬，但你和他一样，正在做的事本身就是意义。"},
+{t:"r",n:"海伦·凯勒",d:"作家、教育家",tg:{disability:3,illness:2,selftaught:3,dreamer:2,comeback:1,obscurity:1},p:["19个月大因病失明失聪，活在无声无光的世界里","7岁遇到家庭教师沙利文，从摸手认字开始学起","学会了说话，读完大学，写出《假如给我三天光明》","一生为残障人士奔走"],s:"《假如给我三天光明》",b:"她连光和声音都没有，却把人生活成了别人的光。"},
+{t:"r",n:"杨绛",d:"作家、翻译家",tg:{widow:3,childloss:3,exile:2,writing:3,longevity:2,solitary:2,comeback:2},p:["与钱锺书相伴一生，女儿钱瑗是她全部的骄傲","特殊年代被下放、扫厕所，依然安静读书","86岁女儿病逝，87岁丈夫去世，「我们仨」只剩她一个","92岁写下《我们仨》，一个人把日子过成书，活到105岁"],s:"《我们仨》",b:"失去所有至亲还能安静地活着并且继续创作，她把孤独活成了境界。"},
+{t:"r",n:"徐霞客",d:"明代地理学家、旅行家",tg:{travel:3,writing:2,dreamer:2,rural:1,poverty:1,solitary:1},p:["22岁放弃科举，说「大丈夫当朝碧海而暮苍梧」","30多年徒步走遍大半个中国，曾被盗、绝粮、重病","晚上不管多累都坚持写游记","《徐霞客游记》成为地理学经典"],s:"《徐霞客游记》",b:"他证明了：把喜欢的事做一辈子，本身就是伟大的事业。"},
+{t:"r",n:"法布尔",d:"昆虫学家，《昆虫记》作者",tg:{poverty:2,science:3,animal:3,obscurity:2,selftaught:2,rural:2,longevity:2},p:["出身贫苦，当过小学教师，工资微薄","一生痴迷观察虫子，被很多人当成怪人","买下荒石园，花30年观察记录昆虫","87岁时《昆虫记》十卷完成，世人才懂他的伟大"],s:"《昆虫记》",b:"一辈子盯着一件热爱的小事，时间会替你说话。"},
+{t:"r",n:"稻盛和夫",d:"「经营之圣」，两家世界500强创始人",tg:{illness:1,startup:3,comeback:2,dreamer:2,career_change:2,longevity:2,poverty:1},p:["少年患肺结核，升学就业都不顺","27岁创业创办京瓷，52岁创办第二电信，都进世界500强","78岁临危受命接手破产的日航，一年扭亏为盈","一生信奉「敬天爱人」「付出不亚于任何人的努力」"],s:"《活法》",b:"他的人生公式：思维方式×热情×能力，态度永远排在天赋前面。"},
+{t:"r",n:"张幼仪",d:"中国第一位银行女副总裁",tg:{love_loss:3,orphan:1,migration:2,career_change:2,comeback:2,selftaught:1},p:["15岁嫁给徐志摩，25岁在德国被要求离婚","带着幼子在异国他乡，从零学德语、学会计","回国先教德语，后成为上海女子商业储蓄银行副总裁","徐志摩后来评价：她是个有志气的女子"],s:"《小脚与西服》（张幼仪口述）",b:"被抛弃不是人生的判决书，她把最痛的一页活成了最硬气的一章。"},
+{t:"r",n:"贝多芬",d:"音乐家，扼住命运咽喉的人",tg:{music:3,disability:2,illness:2,poverty:2,orphan:1,solitary:2,love_loss:2,dreamer:2},p:["26岁开始失聪，对音乐家是灭顶之灾","写过「海利根施塔特遗书」，一度想结束生命","失聪后反而写出《第九交响曲》等最伟大的作品","终生未娶，把全部生命献给音乐"],s:"《贝多芬传》（罗曼·罗兰）",b:"「我要扼住命运的咽喉」——他说这话时正在失去最宝贵的东西。"},
+{t:"r",n:"吴运铎",d:"「中国的保尔·柯察金」，兵器工业开拓者",tg:{illness:2,disability:3,war:2,selftaught:2,writing:2,comeback:2},p:["新四军兵工厂工人，多次在试验中重伤","左眼失明、左手残疾、全身伤痕一百多处","在病床上自学写作，写成《把一切献给党》","被称为「中国的保尔」"],s:"《把一切献给党》",b:"身体残了志不残，他用一只眼睛看清了人生的方向。"},
+{t:"r",n:"摩西奶奶",d:"美国原始派画家，76岁开始画画",tg:{latebloom:3,rural:2,art:3,longevity:2,rural:2,career_change:2},p:["一生在农村度过，刺绣、操持家务","76岁因关节炎放下绣针，开始画画","80岁开个人画展，轰动美国","101岁去世前画了1600多幅作品"],s:"《摩西奶奶绘画全集》",b:"「人生永远没有太晚的开始」——她76岁才开始。"},
+{t:"r",n:"陆游",d:"南宋诗人，一生郁郁不得志",tg:{dreamer:3,love_loss:2,exile:2,obscurity:2,writing:3,longevity:2,career_change:1},p:["与唐婉的爱情被母亲拆散，沈园一别成终生遗憾","仕途坎坷，被罢官多次，壮志难酬","一生写了近万首诗，「王师北定中原日」至死念念不忘","活到85岁，笔耕不辍"],s:"《陆游传》（朱东润）",b:"求而不得贯穿他的一生，但他从没停止热爱与表达。"},
+{t:"r",n:"马克·吐温",d:"美国作家",tg:{poverty:2,bankrupt:2,career_change:3,writing:3,travel:2,orphan:1,startup:1},p:["12岁丧父，辍学当印刷学徒","当过领航员、矿工、记者，人生几度改行","投资排字机和出版公司破产，背巨额债务","晚年靠环球演讲一场场还清了所有欠款"],s:"《马克·吐温自传》",b:"破产不可耻，他靠幽默和嘴把欠的钱一分分挣回来还清了。"},
+{t:"r",n:"三毛",d:"作家，撒哈拉的流浪者",tg:{travel:3,exile:2,writing:3,love_loss:2,migration:2,solitary:2,dreamer:2},p:["休学自学，年少时敏感孤独","远赴撒哈拉沙漠，和荷西在荒漠里安家","写出《撒哈拉的故事》，让无数人向往远方","荷西意外去世后，她带着破碎的心继续行走、写作"],s:"《撒哈拉的故事》",b:"她把「生活在别处」过成了真实的日子，也提醒我们远行的人心里都有牵挂。"},
+{t:"f",n:"圣地亚哥",d:"《老人与海》·海明威",tg:{sea:3,poverty:2,obscurity:2,comeback:3,solitary:2,longevity:2,dreamer:2},p:["老渔夫，84天没捕到一条鱼，被同行同情","第85天独自出海，搏斗三天两夜钓起大马林鱼","归途鱼被鲨鱼吃光，只拖回一副骨架","「人可以被毁灭，但不能被打败」"],s:"《老人与海》",b:"结果会被拿走，但fighting本身定义了你是谁。"},
+{t:"f",n:"福贵",d:"《活着》·余华",tg:{bankrupt:2,orphan:1,childloss:3,widow:3,poverty:3,war:2,comeback:1,longevity:1},p:["年轻时是地主家的败家子，输光全部家产","被抓壮丁经历战乱，九死一生回家","此后亲人一个个先他而去：父母、儿子、女儿、妻子、女婿、外孙","晚年只有一头老牛相伴，依然平静地活着"],s:"《活着》",b:"「人是为活着本身而活着」——他失去了所有，却没失去活下去的劲。"},
+{t:"f",n:"孙少平",d:"《平凡的世界》·路遥",tg:{poverty:3,rural:3,selftaught:2,love_loss:2,migration:2,dreamer:2,comeback:2,illness:1},p:["双水村穷学生，上学时连菜都吃不起，躲着人吃黑馍","不甘心留在村里，独自去黄原城揽工背石头","在煤矿下井，工余时间坚持读书","恋人晓霞牺牲，他在矿难中毁了容，依然选择回到矿山生活"],s:"《平凡的世界》",b:"出身平凡不认命，靠读书和吃苦一点点撑大自己的世界。"},
+{t:"f",n:"简·爱",d:"《简·爱》·夏洛蒂·勃朗特",tg:{orphan:3,poverty:2,selftaught:2,love_loss:2,career_change:1,dreamer:2,solitary:1},p:["父母双亡，寄人篱下被舅妈嫌弃，被送进慈善学校","靠读书改变命运，成为家庭教师","爱上罗切斯特，发现他已有妻子后毅然离开","最终凭自己的独立人格赢得平等的婚姻"],s:"《简·爱》",b:"「我们的精神是平等的」——她一无所有，却从不觉得自己低人一等。"},
+{t:"f",n:"基督山伯爵",d:"《基督山伯爵》·大仲马",tg:{prison:3,comeback:3,love_loss:2,bankrupt:1,orphan:1,solitary:1},p:["年轻水手唐泰斯，即将升任船长、迎娶爱人","被小人陷害，婚礼当天被捕，入狱14年","狱中遇到法利亚神甫，学到一身本领并获得宝藏","越狱后化身基督山伯爵，一一报恩复仇"],s:"《基督山伯爵》",b:"「人类的全部智慧就包含在这两个词里：等待和希望。」"},
+{t:"f",n:"保尔·柯察金",d:"《钢铁是怎样炼成的》·奥斯特洛夫斯基",tg:{poverty:2,illness:2,disability:3,war:2,dreamer:3,selftaught:2,writing:2},p:["贫苦铁路工人家庭出身，少年当杂役受尽欺辱","参加革命，战场上头部重伤","后来全身瘫痪、双目失明","在病床上口述完成小说，「生命不因虚度年华而悔恨」"],s:"《钢铁是怎样炼成的》",b:"瘫痪失明都没拦住他写作，钢铁就是这样炼成的。"},
+{t:"f",n:"鲁滨逊",d:"《鲁滨逊漂流记》·笛福",tg:{sea:3,migration:2,selftaught:3,solitary:2,comeback:2,travel:2,startup:1},p:["不顾父亲反对执意出海冒险","海难后独自流落荒岛28年","从绝望着手：建屋、种麦、养羊、造船","把绝境过成了自己的王国"],s:"《鲁滨逊漂流记》",b:"流落荒岛都能白手起家，人的动手能力比自己想的大得多。"},
+{t:"f",n:"斯嘉丽",d:"《飘》·玛格丽特·米切尔",tg:{war:3,poverty:2,career_change:2,love_loss:3,comeback:3,bankrupt:2},p:["南方庄园的娇小姐，南北战争毁掉一切","母亲病逝、家园残破，从摘棉花开始重建生活","「明天又是新的一天」——再难也要活下去","爱过、错爱过，最后失去才明白真心"],s:"《飘》",b:"她最大的本事是：无论世界塌成什么样，明天照样重新开始。"},
+{t:"f",n:"翠翠",d:"《边城》·沈从文",tg:{orphan:2,rural:2,love_loss:3,animal:1,solitary:2},p:["湘西茶峒的渡船女孩，父母早逝，与爷爷相依为命","与船总家二老傩送相识相悦","爷爷在一个雷雨夜去世，傩送远走","她留在渡口，等着那个「也许永远不回来，也许明天回来」的人"],s:"《边城》",b:"纯真的等待本身就有力量，人生有些温柔是苦的。"},
+{t:"f",n:"约翰·克利斯朵夫",d:"《约翰·克利斯朵夫》·罗曼·罗兰",tg:{music:3,poverty:2,fame:2,love_loss:2,exile:2,dreamer:2,comeback:2,orphan:1},p:["德国小城穷音乐家之子，少年天才","因仗义打抱不平被迫流亡法国","在巴黎穷困潦倒，靠音乐才华终获盛名","一生与命运、与自我搏斗，晚年归于平静"],s:"《约翰·克利斯朵夫》",b:"「大半的人在二十岁或三十岁就死了」——他到死都活得滚烫。"},
+{t:"f",n:"堂吉诃德",d:"《堂吉诃德》·塞万提斯",tg:{dreamer:3,obscurity:2,career_change:1,solitary:1,travel:2},p:["读完骑士小说入了迷，50岁决定做个游侠骑士","骑瘦马、披旧甲，带着农民桑丘周游天下","向风车冲锋、把羊群当军队，处处碰壁被人笑","但他的赤诚和理想主义照亮了整个文学史"],s:"《堂吉诃德》",b:"被人笑「做梦」的人，心里往往有别人没有的火焰。"},
+{t:"f",n:"阿甘",d:"《阿甘正传》·温斯顿·格鲁姆",tg:{disability:1,orphan:1,comeback:2,dreamer:2,war:1,startup:1,longevity:1,animal:1},p:["智商只有75，从小戴着腿箍被人追着嘲笑","靠着「跑」跑进大学、跑上球场、跑进战场又跑出来","信守承诺捕虾成了富翁，把财富分给需要的人","他不懂算计，只是一直向前跑"],s:"《阿甘正传》",b:"「生活就像一盒巧克力」——不聪明没关系，专注和真诚会带你去远方。"},
+{t:"f",n:"孙悟空",d:"《西游记》·吴承恩",tg:{orphan:2,dreamer:2,prison:2,comeback:3,travel:2,career_change:1},p:["石头缝里蹦出来，无父无母","大闹天宫被压五行山下五百年","保唐僧西天取经，历经九九八十一难","从桀骜妖王修成斗战胜佛"],s:"《西游记》",b:"被压五百年都没废掉，八十一难也打不垮，取经路上谁不是边挨打边长大。"},
+{t:"f",n:"亚哈船长",d:"《白鲸》·麦尔维尔",tg:{sea:3,disability:2,dreamer:3,solitary:2,comeback:1},p:["捕鲸船长，一条腿被白鲸莫比·迪克咬断","装上鲸骨假腿，执意再出海追杀仇敌","追遍三大洋，明知凶险也绝不回头","最终与白鲸同归于尽，是执念也是壮烈"],s:"《白鲸》",b:"被命运咬掉一块之后执意再出海的人——那份不服输，和你如出一辙。"},
+{t:"f",n:"哈姆雷特",d:"《哈姆雷特》·莎士比亚",tg:{orphan:2,childloss:1,love_loss:2,solitary:2,dreamer:2},p:["父王骤逝，叔叔篡位娶母","与幽灵对话得知真相，陷入「生存还是毁灭」的挣扎","装疯、试探、错杀，在复仇与迟疑间煎熬","最终完成复仇，也付出生命"],s:"《哈姆雷特》",b:"深夜想太多的人，和他隔着四百年也是同类。"},
+{t:"f",n:"祥子",d:"《骆驼祥子》·老舍",tg:{rural:3,poverty:3,migration:2,comeback:1,bankrupt:1},p:["从农村来北平城拉洋车，最大的梦想是拥有一辆自己的车","三起三落：车被抢、积蓄被敲诈、为葬虎妞再卖车","在一次次打击中从要强走向沉沦","老舍写他，是想让人看见时代碾过的痕迹"],s:"《骆驼祥子》",b:"他的故事是面镜子：提醒我们守住心里那口气有多重要。"},
+{t:"f",n:"苔丝",d:"《德伯家的苔丝》·哈代",tg:{poverty:2,rural:2,love_loss:3,orphan:1,war:0},p:["贫苦农家女儿，为生计去有钱人家做工","遭少爷亚雷伤害，生下孩子又夭折","遇到真爱安琪，却因往事被抛弃","命运步步紧逼，她以最决绝的方式做了了断"],s:"《德伯家的苔丝》",b:"她承受的冤屈与坚强，让人心疼也让人敬畏。"},
+{t:"f",n:"许三观",d:"《许三观卖血记》·余华",tg:{poverty:3,childloss:1,career_change:1,comeback:1,widow:0},p:["城里丝厂送茧工，一贫如洗","每逢难关就去卖血：儿子生病、饥荒、招待贵客……","靠卖血撑起一个家，把三个儿子养大","老了血没人要，他哭的不是钱，是再也扛不动家的自己"],s:"《许三观卖血记》",b:"普通人扛住生活的方式朴素到让人心酸，但也硬气。"},
+{t:"f",n:"高加林",d:"《人生》·路遥",tg:{rural:3,career_change:2,love_loss:3,obscurity:2,comeback:1},p:["陕北农村知识青年，教书职位被大队长儿子顶替","绝望时巧珍的爱温暖了他","偶然机会进城工作，却在选择中弄丢了最爱","最后被退回农村，德顺爷爷一句话点醒他"],s:"《人生》",b:"「人生的道路虽然漫长，但紧要处常常只有几步。」"},
+{t:"f",n:"冉阿让",d:"《悲惨世界》·雨果",tg:{prison:3,poverty:2,orphan:2,comeback:3,career_change:2,childloss:2},p:["为给挨饿的外甥偷一块面包，服苦役19年","出狱后被主教感化，撕掉假身份重新做人","化名马德兰办工厂当市长，收养孤女珂赛特","一生被追缉、被误解，仍把善意给到底"],s:"《悲惨世界》",b:"坐过牢、被全社会拒绝的人，依然选择成为光——没有什么过去能定义你的未来。"}
+];
+
+/* 匹配 */
+function tagsOf(text){
+ const hit={};KW.forEach(([re,t])=>{if(re.test(text))hit[t]=1});return hit;
+}
+/* 安慰语 */
+function comfortOf(keys,name){
+ const t=keys[0]||"comeback";
+ const M={
+  comeback:`人生这份答卷，${name}答得很慢但很坚定。你现在经历的，只是还没写完的那几页。`,
+  bankrupt:`钱没了可以再挣，${name}就是这么过来的。谷底的好处是：接下来每一步都是向上。`,
+  latebloom:`别急，${name}的故事告诉你：你只是还没到开花的季节。`,
+  exile:`漂泊不是没有根，${name}也一样——根会跟着你重新长出来。`,
+  migration:`离开熟悉的一切需要勇气，${name}懂得这份勇气。新土地上也开得出花。`,
+  illness:`身体的事不由人，心的事可以由人。${name}就是在不能选择里选出了自己的活法。`,
+  love_loss:`心碎过的日子最难，但${name}走过来了，你也可以。你值得被好好爱。`,
+  widow:`失去最爱的人，剩下的日子怎么过，${name}给了我们一种安静而体面的答案。`,
+  poverty:`出身不由你，去向由你。${name}从更难的起点走到了更远的地方。`,
+  dreamer:`被人说「想太多」「不现实」的时候，想想${name}。世界是靠这样的人往前挪的。`
+ };
+ return M[t]||M.comeback;
+}
+function localMatch(story){
+ const tags=tagsOf(story);
+ const keys=Object.keys(tags);
+ const scored=C.map(c=>{
+  let s=keys.reduce((a,k)=>a+(c.tg[k]||0),0);
+  return {c,s};
+ }).sort((a,b)=>b.s-a.s);
+ const real=scored.filter(x=>x.c.t==="r")[0].c;
+ const fic=scored.filter(x=>x.c.t==="f")[0].c;
+ const topKeys=keys.filter(k=>real.tg[k]||fic.tg[k]).slice(0,5);
+ const you=topKeys.map(k=>PH[k]).filter(Boolean);
+ const shared=k=>`你们共同的印记是${PH[k]||"那段不肯认输的岁月"}`;
+ const rk=keys.filter(k=>real.tg[k]);
+ const fk=keys.filter(k=>fic.tg[k]);
+ const r={you:you.length?you:["认真生活的人，本身就值得被认真对照"],
+  real:{name:real.n,identity:real.d,path:real.p,
+   compare:(rk.length?shared(rk[0]):`你们都是把日子认真过的人`)+"。"+real.b,
+   source:"📖 "+real.s},
+  fiction:{name:fic.n,work:fic.d.split("·")[0].trim(),author:(fic.d.split("·")[1]||"").trim(),path:fic.p,
+   compare:(fk.length?shared(fk[0]):`你们都带着一股不肯低头的劲`)+"。"+fic.b,
+   source:"📖 "+fic.d},
+  comfort:comfortOf(keys,real.n===fic.n?fic.n:real.n)};
+ return r;
+}
+
+/* ---------- 发送（本地优先；若填写了 AI 接口则用 AI 增强） ---------- */
+async function aiMatch(story){
+ const r0=await fetch(cfg.base+"/chat/completions",{method:"POST",
+  headers:{"Content-Type":"application/json","Authorization":"Bearer "+cfg.key},
+  body:JSON.stringify({model:cfg.model||"glm-4-flash",messages:[{role:"system",content:"你是温暖、有文学素养的倾听者。根据用户自述找出一实一虚两个人物（真实人物+文学人物），只按人生经历/爱好相似配对，不按地域。只输出JSON：{\"you\":[\"要点2-6条\"],\"real\":{\"name\":\"\",\"identity\":\"\",\"path\":[],\"compare\":\"\",\"source\":\"\"},\"fiction\":{\"name\":\"\",\"work\":\"《》\",\"author\":\"\",\"path\":[],\"compare\":\"\",\"source\":\"\"},\"comfort\":\"100字\"}，事实不确定就写“出处请自行核对”，绝不编造。"},{role:"user",content:story}],temperature:0.8})});
+ if(!r0.ok)throw new Error("HTTP "+r0.status);
+ const d=await r0.json();
+ let s=d.choices[0].message.content.trim().replace(/^```(json)?/,"").replace(/```$/,"").trim();
+ const m=s.match(/\{[\s\S]*\}/);if(m)s=m[0];
+ return JSON.parse(s);
+}
+function renderResult(r){
+ res.innerHTML=`<div class="card"><div class="lb">你的特点</div>${ol(r.you)}</div>
+ <div class="card"><span class="tag">现实人物</span><h2 class="nm">${eS(r.real.name)}</h2><div class="sb">${eS(r.real.identity)}</div><div class="lb">ta的故事</div>${ol(r.real.path)}<div class="lb">与你对比</div>${eS(r.real.compare)}<div class="src">${eS(r.real.source)}</div></div>
+ <div class="card"><span class="tag">文学人物</span><h2 class="nm">${eS(r.fiction.name)}</h2><div class="sb">${eS(r.fiction.work)} · ${eS(r.fiction.author)}</div><div class="lb">ta的故事</div>${ol(r.fiction.path)}<div class="lb">与你对比</div>${eS(r.fiction.compare)}<div class="src">${eS(r.fiction.source)}</div></div>
+ <div class="card cm">💛 ${eS(r.comfort)}</div>`;
+}
 go.onclick=async()=>{
  const story=txt.value.trim();
  if(story.length<2){hint.textContent="再多说几个字吧";return}
- if(!cfg.base||!cfg.key){openCfg();hint.textContent="先填好 AI 接口设置（保存后自动开始）";return}
  if(listening&&rec)rec.stop();
  res.innerHTML='<div class="card">正在翻阅历史与书卷，寻找与你相似的灵魂……</div>';go.disabled=true;
- const sys='你是一位温暖、有文学素养的倾听者。任务：根据用户自述找出两位与他最相似的人：①一位真实存在的现实人物（历史或当代均可；若是政治人物，只做事实性对照，不评价立场）；②一位文学作品中的虚构人物。两人必须同时出现。对比维度完全按人生经历/爱好的相似关系选择，不要按地域国籍归类。对比的维度选最贴合其自述的：讲人生经历时用经历维度（如漂泊迁徙、挫折、转折、亲情、理想与现实）；若只说了爱好，就找真实有据、同样热爱这些事物的人物；若涉及迁徙漂泊，必须按先后顺序写出地点。严格要求：事实必须确信；出处只写真实存在的作品、自传、传记或文章（如《从文自传》《湘行散记》），书名用《》；没把握就写"出处请自行核对"，绝不编造。只输出JSON，不要代码块：{"you":["从用户自述中提炼的要点（经历按时间，喜好按类别），2-6条，每条一句"],"real":{"name":"","identity":"一句话身份","path":["与用户相关的经历、习惯或喜好故事，经历类按时间，3-7条"],"compare":"80-140字，具体对照你与他在该维度上的相似与不同","source":"出处：作品/文章名"},"fiction":{"name":"","work":"《作品名》","author":"作者","path":["人物相关的经历或喜好，3-6条"],"compare":"80-140字，对照","source":"出处：作品名及章节或情节"},"comfort":"100-160字，温柔真诚，呼应其具体经历，借这两位人物的共同点来鼓励他"}';
  try{
-  const r0=await fetch(cfg.base+"/chat/completions",{method:"POST",
-   headers:{"Content-Type":"application/json","Authorization":"Bearer "+cfg.key},
-   body:JSON.stringify({model:cfg.model||"gpt-4o-mini",messages:[{role:"system",content:sys},{role:"user",content:story}],temperature:0.8})});
-  if(!r0.ok)throw new Error("HTTP "+r0.status);
-  const d=await r0.json();
-  let s=d.choices[0].message.content.trim().replace(/^```(json)?/,"").replace(/```$/,"").trim();
-  const m=s.match(/\{[\s\S]*\}/);if(m)s=m[0];
-  const r=JSON.parse(s);
-  res.innerHTML=`<div class="card"><div class="lb">你的特点</div>${ol(r.you)}</div>
-  <div class="card"><span class="tag">现实人物</span><h2 class="nm">${eS(r.real.name)}</h2><div class="sb">${eS(r.real.identity)}</div><div class="lb">ta的故事</div>${ol(r.real.path)}<div class="lb">与你对比</div>${eS(r.real.compare)}<div class="src">📖 ${eS(r.real.source)}</div></div>
-  <div class="card"><span class="tag">文学人物</span><h2 class="nm">${eS(r.fiction.name)}</h2><div class="sb">${eS(r.fiction.work)} · ${eS(r.fiction.author)}</div><div class="lb">ta的故事</div>${ol(r.fiction.path)}<div class="lb">与你对比</div>${eS(r.fiction.compare)}<div class="src">📖 ${eS(r.fiction.source)}</div></div>
-  <div class="card cm">💛 ${eS(r.comfort)}</div><div class="note">史实与出处由 AI 生成，引用前请自行核对</div>`;
- }catch(err){res.innerHTML='<div class="card">暂时没能生成（'+eS(err.message||"网络错误")+'）。<br>请点右上角 ⚙︎ 检查接口设置，稍后再试。</div>'}
+  let r;
+  if(cfg.base&&cfg.key){ try{r=await aiMatch(story)}catch(e){r=localMatch(story)} }
+  else { await new Promise(s=>setTimeout(s,900)); r=localMatch(story) }
+  renderResult(r);
+ }catch(err){res.innerHTML='<div class="card">出了点小状况，再试一次吧。</div>'}
  go.disabled=false;
 };
 
