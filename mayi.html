@@ -64,6 +64,13 @@
   .src-btn{flex:1;padding:10px;border:1.5px solid var(--gold-l);border-radius:10px;background:#fdf9ef;color:#7a5a20;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
   .src-btn:active{background:var(--gold-l)}
   #ceziInputBox .char-input{width:100%;padding:14px 12px;border:1.5px solid var(--gold);border-radius:10px;font-size:26px;text-align:center;font-family:"Kaiti SC","STKaiti","KaiTi",serif;background:#fdfbf6;color:var(--ink)}
+  .pad-wrap{margin-top:12px;border:1.5px solid var(--gold);border-radius:12px;background:#fdfbf6;position:relative}
+  .pad-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px dashed var(--line);background:#fbf6ea;border-radius:12px 12px 0 0}
+  .pad-head .t{font-size:13px;color:#7a5a20;font-weight:600}
+  .pad-clear{border:none;background:none;color:#a39a8c;font-size:13px;cursor:pointer;font-family:inherit;padding:4px 8px}
+  .pad-clear:active{color:#7a5a20}
+  #pad{display:block;width:100%;height:240px;background:#fdfbf6;cursor:crosshair;touch-action:none;border-radius:0 0 11px 11px}
+  .pad-guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:15px;color:#cfc4ae;pointer-events:none;letter-spacing:2px}
   .cat-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .chip{padding:9px 16px;border:1.5px solid var(--line);border-radius:999px;background:#faf8f3;font-size:14px;cursor:pointer;color:#7a7060;transition:.15s}
   .chip.active{border-color:var(--gold);background:var(--gold-l);color:#7a5a20;font-weight:700}
@@ -124,7 +131,16 @@
     <input type="file" id="fileInput" class="imgInput" accept="image/*" style="display:none">
     <input type="file" id="fileCam" class="imgInput" accept="image/*" capture="environment" style="display:none">
     <div id="ceziInputBox" style="display:none">
-      <div class="label">或直接输入一个字（与照片二选一，也可都给）</div>
+      <div class="label">✍️ 请在下方格子里手写一个字（写什么字，就测什么字）</div>
+      <div class="pad-wrap" id="padWrap">
+        <div class="pad-head">
+          <span class="t">手写区 —— 用鼠标或手指直接写</span>
+          <button class="pad-clear" onclick="clearPad()">↺ 重写</button>
+        </div>
+        <canvas id="pad"></canvas>
+        <div class="pad-guide" id="padGuide">✍️ 在此写一个字</div>
+      </div>
+      <div class="label" style="margin-top:12px">所写的字（选填，便于在结果中显示）</div>
       <input type="text" id="ceziChar" class="char-input" maxlength="1" placeholder="例如：发、缘、安 …">
       <div class="label">想测哪方面？（选一个，下面会重点详批）</div>
       <div class="cat-chips" id="catChips"></div>
@@ -2543,11 +2559,14 @@ function setMode(m){
   document.getElementById("baziCard").style.display = (m==="cezi") ? "none" : "block";
   document.getElementById("ceziInputBox").style.display = (m==="cezi") ? "block" : "none";
   document.getElementById("photoHint").textContent = (m==="cezi")
-    ? "手写的字：拍摄 / 上传字照（也可不打照片，直接在下方打一个字）"
+    ? "手写一个字：字迹浓淡疏密将参与测算"
     : "照片（正面、光线清晰效果最佳）";
+  document.getElementById("uploadBox").style.display = (m==="cezi") ? "none" : "block";
+  document.getElementById("photoHint").style.display = (m==="cezi") ? "none" : "block";
   document.getElementById("goBtn").textContent = (m==="cezi") ? "开 始 测 字" : "开 始 测 算";
   document.getElementById("result").style.display = "none";
   document.getElementById("ceziResult").style.display = "none";
+  if(m==="cezi") setTimeout(initPad, 60);
 }
 
 /* ============ 照片（拍摄/上传均可，统一压缩到最长边 900px） ============ */
@@ -3048,6 +3067,104 @@ function render(y,m,d,L,bazi,a,q,hour){
 }
 function seed(n){return n%97+3;}
 
+/* ============ 手写板（测字） ============ */
+var padCv=null, padCtx=null, padHasInk=false, padStrokeCnt=0, padDrawing=false, padLast=null;
+function initPad(){
+  if(padCv) { fitPad(); return; }
+  padCv=document.getElementById("pad");
+  if(!padCv) return;
+  padCtx=padCv.getContext("2d");
+  fitPad();
+  padCtx.lineCap="round"; padCtx.lineJoin="round";
+  padCtx.strokeStyle="#2b2620";
+  padCv.addEventListener("pointerdown",function(e){
+    e.preventDefault();
+    padDrawing=true; padLast=getPadPos(e); padStrokeCnt++;
+    padHasInk=true;
+    document.getElementById("padGuide").style.display="none";
+    padCtx.beginPath();
+    padCtx.moveTo(padLast.x,padLast.y);
+    padCtx.lineTo(padLast.x+0.01,padLast.y+0.01);
+    padCtx.lineWidth=6+Math.random()*2;
+    padCtx.stroke();
+    if(padCv.setPointerCapture){try{padCv.setPointerCapture(e.pointerId);}catch(_){}}
+  });
+  padCv.addEventListener("pointermove",function(e){
+    if(!padDrawing) return;
+    e.preventDefault();
+    var p=getPadPos(e);
+    padCtx.beginPath();
+    padCtx.moveTo(padLast.x,padLast.y);
+    padCtx.lineTo(p.x,p.y);
+    padCtx.stroke();
+    padLast=p;
+  });
+  var stop=function(e){
+    if(!padDrawing) return;
+    padDrawing=false; padLast=null;
+  };
+  padCv.addEventListener("pointerup",stop);
+  padCv.addEventListener("pointercancel",stop);
+  padCv.addEventListener("pointerleave",function(e){ if(padDrawing){stop(e);} });
+}
+function fitPad(){
+  if(!padCv) return;
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var w=padCv.clientWidth, h=padCv.clientHeight;
+  if(w<10||h<10) return;
+  // 保留已有笔迹（按比例重绘会失真，简单起见缩放贴回）
+  var old=null;
+  if(padHasInk){ old=document.createElement("canvas"); old.width=padCv.width; old.height=padCv.height; old.getContext("2d").drawImage(padCv,0,0); }
+  padCv.width=Math.round(w*dpr); padCv.height=Math.round(h*dpr);
+  padCtx.setTransform(dpr,0,0,dpr,0,0);
+  padCtx.lineCap="round"; padCtx.lineJoin="round";
+  padCtx.strokeStyle="#2b2620";
+  if(old){
+    padCtx.drawImage(old,0,0,old.width,old.height,0,0,w,h);
+  }
+}
+window.addEventListener("resize",function(){ if(document.getElementById("ceziInputBox").style.display!=="none") fitPad(); });
+function getPadPos(e){
+  var r=padCv.getBoundingClientRect();
+  return {x:(e.clientX-r.left), y:(e.clientY-r.top)};
+}
+function clearPad(){
+  if(!padCtx) { return; }
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  padCtx.clearRect(0,0,padCv.width/dpr,padCv.height/dpr);
+  padHasInk=false; padStrokeCnt=0;
+  document.getElementById("padGuide").style.display="";
+}
+/* 由手写笔迹像素生成"墨象"数据（与 analyzePhoto 输出同构） */
+function analyzePad(){
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var w=Math.round(padCv.width/dpr), h=Math.round(padCv.height/dpr);
+  var img=padCtx.getImageData(0,0,padCv.width,padCv.height).data;
+  var n=img.length/4;
+  var sumL=0, dark=0, sx=0, sy=0, dn=0, minX=1e9,maxX=-1,minY=1e9,maxY=-1;
+  var thr=140;
+  for(var i=0;i<n;i++){
+    var r=img[i*4],g=img[i*4+1],b=img[i*4+2];
+    var L=(r*0.299+g*0.587+b*0.114);
+    sumL+=L;
+    if(L<thr){
+      dark++;
+      var px=(i% (padCv.width))/dpr, py=Math.floor(i/padCv.width)/dpr;
+      sx+=px; sy+=py; dn++;
+      if(px<minX)minX=px; if(px>maxX)maxX=px;
+      if(py<minY)minY=py; if(py>maxY)maxY=py;
+    }
+  }
+  var avgL=sumL/n;                          // 全画布平均明度（墨多则低）
+  var density=dark/n*100;                   // 墨迹覆盖率 %
+  var cx=dn? sx/dn : w/2, cy=dn? sy/dn : h/2;
+  var warm=((cx-w/2)/w*30);                 // 重心左右偏移 → 冷暖
+  var spread=Math.max(1,(maxX-minX)*(maxY-minY));
+  var hash=Math.abs(Math.round(density*1000)+padStrokeCnt*7919+Math.round(cx*31)+Math.round(cy*17)+Math.round(spread))>>>0;
+  hash=(hash*2654435761)>>>0;
+  return {bright:avgL, sat:Math.min(100,density*4), warm:warm, hash:hash, strokes:padStrokeCnt};
+}
+
 /* ============ 测字流程 ============ */
 function statsFromChar(ch){ // 未给照片时，由字符码生成确定性"墨象"数据
   var code=ch.charCodeAt(0);
@@ -3057,21 +3174,15 @@ function statsFromChar(ch){ // 未给照片时，由字符码生成确定性"墨
 function startCezi(){
   var btn=document.getElementById("goBtn");
   var ch=document.getElementById("ceziChar").value.trim();
-  if(!imgData && !ch){alert("请拍摄/上传你写的字，或直接输入一个字");return;}
+  if(!padHasInk){alert("请先在手写区写一个字");return;}
   if(ceziCat<0){alert("请先选择要测的项目（事业、财运、感情…）");return;}
+  if(!ch) document.getElementById("ceziChar").value="";
   btn.disabled=true;btn.textContent="测 字 中 …";
   setTimeout(function(){
-    if(imgData){
-      analyzePhoto(function(a){
-        renderCezi(ch,a);
-        btn.disabled=false;btn.textContent="开 始 测 字";
-        document.getElementById("ceziResult").scrollIntoView({behavior:"smooth"});
-      });
-    }else{
-      renderCezi(ch,statsFromChar(ch));
-      btn.disabled=false;btn.textContent="开 始 测 字";
-      document.getElementById("ceziResult").scrollIntoView({behavior:"smooth"});
-    }
+    var a=analyzePad();
+    renderCezi(ch,a);
+    btn.disabled=false;btn.textContent="开 始 测 字";
+    document.getElementById("ceziResult").scrollIntoView({behavior:"smooth"});
   },300);
 }
 function renderCezi(ch,a){
