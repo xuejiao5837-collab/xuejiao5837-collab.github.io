@@ -316,6 +316,7 @@
         <li><div class="row" onclick="openPage('share')"><span class="num">vii</span><span class="word" data-i18n="m7">数据共享</span></div></li>
         <li><div class="row" onclick="openPage('news')"><span class="num">viii</span><span class="word" data-i18n="m8">今日资讯</span></div></li>
         <li><div class="row" onclick="openPage('reward')"><span class="num">ix</span><span class="word" data-i18n="m9">我要打赏</span></div></li>
+        <li><div class="row" onclick="openPage('market')"><span class="num">x</span><span class="word" data-i18n="m10">美股利率图</span></div></li>
       </ul>
     </nav>
   </header>
@@ -673,6 +674,7 @@ const I18N = {
       sh_h1:"美股回撤监控台",sh_p1:"四只指数的实时回撤、前瞻市盈率与分档买入建议。打开即可查看，无需登录。",sh_go:"打开数据 →",
       m8:"今日资讯",
       m9:"我要打赏",
+      m10:"美股利率图",
       rw_sub:"如果这个网站、这些文章或小工具有帮到你，请我喝杯咖啡 ☕",
       rw_tip:"手机端：长按二维码 → 识别图中二维码 → 输入金额即可打赏。<br>电脑端：打开微信「扫一扫」，扫描上面的二维码。",
       rw_note:"* 打赏完全自愿，金额随意。感谢每一份支持 🙏"},
@@ -708,6 +710,7 @@ const I18N = {
       sh_h1:"US Drawdown Monitor",sh_p1:"Live drawdown, forward P/E and tiered buy suggestions for four ETFs. Open and view, no login needed.",sh_go:"Open data →",
       m8:"daily news",
       m9:"buy me a coffee",
+      m10:"Market & Rates",
       rw_sub:"If this site, the essays or the tools helped you, buy me a coffee ☕",
       rw_tip:"On mobile: long-press the QR code → recognize it → enter any amount to tip.<br>On desktop: open WeChat scan and point it at the code above.",
       rw_note:"* Tipping is entirely voluntary. Thank you for every bit of support 🙏"},
@@ -743,6 +746,7 @@ const I18N = {
       sh_h1:"US-Rücksetzungsmonitor",sh_p1:"Aktuelle Rücksetzung, vorausschauendes KGV und gestaffelte Kaufempfehlungen für vier ETFs. Zum Ansehen einfach öffnen — kein Login nötig.",sh_go:"Daten öffnen →",
       m8:"Tagesnews",
       m9:"Trinkgeld",
+      m10:"Aktien & Zinsen",
       rw_sub:"Wenn dir diese Website, die Texte oder die Tools geholfen haben, gönn mir einen Kaffee ☕",
       rw_tip:"Am Handy: QR-Code lange drücken → erkennen → beliebigen Betrag senden.<br>Am Computer: WeChat-Scan öffnen und auf den Code oben richten.",
       rw_note:"* Trinkgeld ist völlig freiwillig. Danke für jede Unterstützung 🙏"}
@@ -794,6 +798,7 @@ function lang(){
 let curPage = null;
 function openPage(name){
   if(name==="news"){ window.open("news.html","_blank"); return; }
+  if(name==="market"){ window.open("market-rates.html","_blank"); return; }
   if(curPage) document.getElementById("pg-"+curPage).classList.remove("show");
   curPage = name;
   const pg = document.getElementById("pg-"+name);
