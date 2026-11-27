@@ -37,6 +37,9 @@ th{background:#faf8f3;color:#555;font-weight:600;white-space:nowrap}
 tr:last-child td{border-bottom:none}
 td:first-child{white-space:nowrap}
 .up{color:#c0392b;font-weight:700}.dn{color:#1e8449;font-weight:700}
+td.big{font-size:17px;font-weight:700;white-space:nowrap}
+td.base{color:#888;font-weight:600}
+td.delta{color:#8a6d3b;font-size:12.5px;white-space:nowrap}
 .tag{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11.5px;font-weight:600}
 .tag.vix{background:#FAEEDA;color:#854F0B}.tag.cnn{background:#E6F1FB;color:#185FA5}
 .dates{color:#999;font-size:11.5px}
@@ -54,7 +57,7 @@ td:first-child{white-space:nowrap}
   <h1>恐慌的时候，该害怕还是该买？</h1>
   <p class="lead">纳斯达克、标普500、VIX 恐慌指数、CNN 恐惧贪婪指数，四条线看近 30 年关系；下方用历史数据回答：当 VIX 到 30/50/80、CNN 极度恐慌时，买进去持有一年，收益到底如何。</p>
   <span class="pill">1996–2026 近30年</span><span class="pill">月度四线同图</span><span class="pill">条件收益率回溯</span><span class="pill">恐慌买入统计</span>
-  <div class="insight"><b>先说结论：</b>历史上 VIX 越高、CNN 越恐慌，随后一年的收益反而越高。VIX≥80 时（仅 2 次：2008、2020）标普一年后平均 <b>+45.7%</b>、纳指 <b>+67.8%</b>；CNN 极度恐慌(&lt;15) 时买入，标普一年后平均 <b>+10.9%</b>、胜率 82%。恐慌是机会，但需要拿得住一年。</div>
+  <div class="insight"><b>先说结论：</b>历史上 VIX 越高、CNN 越恐慌，随后一年的标普收益反而越高——VIX&gt;80 时（仅 2 次：2008、2020）一年后平均 <b>+45.7%</b>，CNN 极度恐慌(&lt;15) 时买入平均 <b>+10.9%</b>，都高于标普近20年的长期平均 <b>8.6%</b>。恐慌往往是机会，但要拿得住一年。</div>
 </div>
 
 <div class="card">
@@ -70,32 +73,33 @@ td:first-child{white-space:nowrap}
   </div>
 </div>
 
-<h2>恐慌时刻买入，一年后收益如何？</h2>
-<p class="desc">方法：统计历史上指标<b>首次触达/跌破</b>该阈值的日子作为买点（同一波恐慌只记一次，设冷却期），按当日收盘买入，持有 365 天（约一年）后卖出。标普500 与纳斯达克分别计算。</p>
+<h2>恐慌时买入，未来一年收益率是多少？</h2>
+<p class="desc">当指标达到下面某个水平时买入标普500并持有一年，历史平均收益率是多少。对比基准是<b>标普500近20年（2006–2026）的年化收益率 8.6%</b>——也就是"什么都不做、长期拿着"的收益。</p>
 <div class="tbl-wrap"><table>
 <thead><tr>
-<th>触发条件</th><th>历史次数</th>
-<th>标普·平均</th><th>标普·中位</th><th>标普·胜率</th>
-<th>纳指·平均</th><th>纳指·中位</th><th>纳指·胜率</th>
-<th>部分买点日期</th>
+<th>买入条件</th><th>买入后一年收益率</th><th>标普近20年平均收益率</th><th>超出基准</th>
 </tr></thead>
 <tbody>
-<tr><td><span class="tag vix">VIX≥30</span></td><td>32</td><td><span class="up">+10.8%</span></td><td><span class="up">+15.7%</span></td><td>70%</td><td><span class="up">+15.5%</span></td><td><span class="up">+18.5%</span></td><td>70%</td><td class="dates">1997-10-27、1998-08-04、1998-12-14、2000-04-14 …</td></tr><tr><td><span class="tag vix">VIX≥50</span></td><td>4</td><td><span class="up">+27.9%</span></td><td><span class="up">+35.4%</span></td><td>75%</td><td><span class="up">+44.2%</span></td><td><span class="up">+49.8%</span></td><td>100%</td><td class="dates">2008-10-06、2009-01-15、2020-03-09、2025-04-08</td></tr><tr><td><span class="tag vix">VIX≥80</span></td><td>2</td><td><span class="up">+45.7%</span></td><td><span class="up">+45.7%</span></td><td>100%</td><td><span class="up">+67.8%</span></td><td><span class="up">+67.8%</span></td><td>100%</td><td class="dates">2008-10-27、2020-03-16</td></tr><tr><td><span class="tag cnn">CNN<15(极度恐慌)</span></td><td>24</td><td><span class="up">+10.9%</span></td><td><span class="up">+9.5%</span></td><td>82%</td><td><span class="up">+13.6%</span></td><td><span class="up">+10.3%</span></td><td>82%</td><td class="dates">2011-03-14、2011-05-24、2011-08-01、2012-05-16 …</td></tr><tr><td><span class="tag cnn">CNN≤20</span></td><td>33</td><td><span class="up">+11.5%</span></td><td><span class="up">+13.9%</span></td><td>77%</td><td><span class="up">+14.9%</span></td><td><span class="up">+17.4%</span></td><td>84%</td><td class="dates">2011-03-14、2011-05-23、2011-07-29、2011-10-03 …</td></tr><tr><td><span class="tag cnn">CNN≤25</span></td><td>43</td><td><span class="up">+11.7%</span></td><td><span class="up">+14.6%</span></td><td>78%</td><td><span class="up">+15.4%</span></td><td><span class="up">+18.4%</span></td><td>80%</td><td class="dates">2011-03-14、2011-05-18、2011-07-29、2011-09-27 …</td></tr>
+<tr><td><span class="tag vix">VIX > 30</span></td><td class="big up">+10.8%</td><td class="big base">+8.6%</td><td class="delta">+2.2 个百分点</td></tr>
+<tr><td><span class="tag vix">VIX > 50</span></td><td class="big up">+27.9%</td><td class="big base">+8.6%</td><td class="delta">+19.3 个百分点</td></tr>
+<tr><td><span class="tag vix">VIX > 80</span></td><td class="big up">+45.7%</td><td class="big base">+8.6%</td><td class="delta">+37.1 个百分点</td></tr>
+<tr><td><span class="tag cnn">CNN < 15（极度恐慌）</span></td><td class="big up">+10.9%</td><td class="big base">+8.6%</td><td class="delta">+2.3 个百分点</td></tr>
+<tr><td><span class="tag cnn">CNN < 20</span></td><td class="big up">+11.5%</td><td class="big base">+8.6%</td><td class="delta">+2.9 个百分点</td></tr>
+<tr><td><span class="tag cnn">CNN < 25</span></td><td class="big up">+11.7%</td><td class="big base">+8.6%</td><td class="delta">+3.1 个百分点</td></tr>
 </tbody>
 </table></div>
 
 <div class="takeaway" style="margin-top:16px">
-<b>怎么读这张表：</b>
+<b>一句话总结：</b>
 <ul>
-<li><b>恐慌越极端，回报越高：</b>VIX≥30 时标普一年 +10.8%；VIX≥50 升到 +27.9%；VIX≥80 达 +45.7%。纳指弹性更大，VIX≥80 时一年 +67.8%。</li>
-<li><b>CNN 极度恐慌(&lt;15) 是好买点：</b>24 次里 82% 概率上涨，标普平均 +10.9%、纳指 +13.6%；阈值放宽到 ≤20、≤25 时收益接近但样本更多。</li>
-<li><b>样本量要留意：</b>VIX≥80 只有 2 次（2008 金融危机、2020 疫情），VIX≥50 只有 4 次，数字漂亮但样本少，不能当作必然规律。</li>
-<li><b>反过来想：</b>恐慌指标低（市场贪婪）时买入，长期收益通常一般。别人恐惧时贪婪，在这组数据里是成立的。</li>
+<li><b>恐慌越极端，一年后收益越高。</b>VIX &gt; 30 时买入，一年平均 +10.8%，比长期平均 8.6% 略高；VIX &gt; 50 升到 +27.9%；VIX &gt; 80 达 +45.7%。</li>
+<li><b>CNN 极度恐慌(&lt;15) 时买入</b>，一年平均 +10.9%，同样高于长期平均；阈值放宽到 20、25 时收益略低但仍为正。</li>
+<li><b>提醒：</b>VIX &gt; 80 历史上只出现过 2 次（2008 金融危机、2020 疫情），VIX &gt; 50 只有 4 次。数字漂亮但样本少，不能当作必然规律。</li>
 </ul>
 </div>
 
 <div class="foot">
-<b>数据来源与口径：</b>纳斯达克(^IXIC)、标普500(^GSPC)、VIX(^VIX) 月度/日度收盘来自 Yahoo Finance；CNN 恐惧贪婪指数历史数据来自公开数据集 whit3rabbit/fear-greed-data（合并 CNN 官方与多个历史源，2011-01 起），当前值来自 CNN 官方接口。收益率＝买点收盘至 365 天后最近交易日收盘的涨跌幅，未计股息、税费与交易成本；买点定义为指标首次穿越阈值并设冷却期（VIX 90 天、CNN 45 天），故不同统计口径下数字会有差异。<br>
+<b>数据来源与口径：</b>标普500(^GSPC)、纳斯达克(^IXIC)、VIX(^VIX) 收盘来自 Yahoo Finance；CNN 恐惧贪婪指数来自公开数据集 whit3rabbit/fear-greed-data（2011-01 起）。<b>买入后一年收益率</b>＝指标首次穿越该阈值当日收盘买入、365 天后最近交易日卖出的涨跌幅（同一波恐慌只记一次，VIX 冷却期 90 天、CNN 45 天），取历次平均。<b>标普近20年平均收益率</b>＝2006-11 至 2026-11 的年化复合收益率 8.6%（1382 点 → 7183 点）。均未计股息、税费与交易成本，不同统计口径下数字会有差异。<br>
 <b>免责声明：</b>以上为历史数据统计，仅供参考，不构成投资建议。历史规律不代表未来，市场有风险，投资需谨慎。数据截至 2026-11-26。
 </div>
 
