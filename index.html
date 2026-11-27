@@ -318,6 +318,7 @@
         <li><div class="row" onclick="openPage('reward')"><span class="num">ix</span><span class="word" data-i18n="m9">我要打赏</span></div></li>
         <li><div class="row" onclick="openPage('market')"><span class="num">x</span><span class="word" data-i18n="m10">美股利率图</span></div></li>
         <li><div class="row" onclick="openPage('driving')"><span class="num">xi</span><span class="word" data-i18n="m11">欧洲开车指南</span></div></li>
+        <li><div class="row" onclick="openPage('fear')"><span class="num">xii</span><span class="word" data-i18n="m12">恐慌指数</span></div></li>
       </ul>
     </nav>
   </header>
@@ -804,6 +805,7 @@ function openPage(name){
   if(name==="news"){ window.open("news.html","_blank"); return; }
   if(name==="market"){ window.open("market-rates.html","_blank"); return; }
   if(name==="driving"){ window.open("driving-europe.html","_blank"); return; }
+  if(name==="fear"){ window.open("fear-greed.html","_blank"); return; }
   if(curPage) document.getElementById("pg-"+curPage).classList.remove("show");
   curPage = name;
   const pg = document.getElementById("pg-"+name);
