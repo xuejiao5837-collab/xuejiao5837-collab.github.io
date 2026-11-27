@@ -26,7 +26,8 @@ def fetch(url, timeout=30):
 
 def collect():
     items = []
-    stamp = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d")
+    # 精确到分钟（北京时间 UTC+8），确保每次自动更新都产生可检测、肉眼可见的变化
+    stamp = (datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M") + " 北京时间"
     # 1. 微博/抖音/小红书热榜
     try:
         d = json.loads(fetch("https://solarhell.github.io/hot-search-crawler/latest.json").decode())
