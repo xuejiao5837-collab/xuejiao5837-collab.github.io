@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>德国开车速查 · 中德交规差异与欧洲各国指南</title>
+<style>
+:root{
+  --ink:#1a1a1a; --muted:#6b6b6b; --line:#e6e2d8; --paper:#f7f6f2; --card:#fff;
+  --accent:#8a6d3b; --red:#c0392b; --blue:#1565c0; --green:#1e8449;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Songti SC",sans-serif;line-height:1.65}
+a{color:var(--accent)}
+.top{background:#fff;border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.back{color:var(--accent);text-decoration:none;font-size:13px;white-space:nowrap}
+.top-t{font-size:15px;font-weight:600}
+.wrap{max-width:1120px;margin:0 auto;padding:26px 20px 70px}
+.hero{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px 28px;margin-bottom:22px}
+.hero h1{font-size:28px;margin:0 0 6px;letter-spacing:.5px}
+.hero .lead{color:var(--muted);font-size:14px;margin:0 0 18px}
+.hero .tag{display:inline-block;background:#FAEEDA;color:#854F0B;font-size:12px;padding:3px 10px;border-radius:12px;margin-right:6px}
+.alert{background:#FCEBEB;border-left:4px solid var(--red);border-radius:8px;padding:12px 16px;font-size:13.5px;margin-top:16px;color:#791F1F}
+.alert b{color:#501313}
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;border-bottom:2px solid var(--line);padding-bottom:8px}
+.tab{background:#efece4;border:1px solid var(--line);border-radius:8px;padding:8px 16px;font-size:14px;cursor:pointer;color:#444}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.panel{display:none}.panel.on{display:block}
+h2{font-size:21px;margin:26px 0 12px;padding-left:12px;border-left:4px solid var(--accent)}
+h3{font-size:16px;margin:20px 0 10px}
+p.desc{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+/* 速查 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.card .k{font-size:12px;color:var(--muted);margin-bottom:4px}
+.card .v{font-size:20px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.card .t{font-size:13.5px;color:#333}
+.rule{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:12px}
+.rule .rt{font-size:16px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.rule .rt .no{background:var(--accent);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto}
+.rule ul{margin:6px 0 0;padding-left:20px;font-size:14px}
+.rule li{margin:4px 0}
+.hl{background:#FAEEDA;padding:1px 5px;border-radius:4px}
+.hl-r{background:#FCEBEB;color:#791F1F;padding:1px 5px;border-radius:4px}
+.hl-b{background:#E6F1FB;color:#0C447C;padding:1px 5px;border-radius:4px}
+/* 表格 */
+.tbl-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+th,td{padding:11px 13px;text-align:left;vertical-align:top;border-bottom:1px solid #eeeee8}
+th{background:#faf8f3;color:#555;font-weight:600;position:sticky;top:0}
+tr:last-child td{border-bottom:none}
+.diff{color:var(--red);font-weight:600}
+/* 标志 */
+.cat-block{margin-top:26px}
+.cat-block h3{display:flex;align-items:center;gap:8px;font-size:18px;margin-bottom:4px}
+.cat-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.cat-dot.禁令标志{background:#d32f2f}.cat-dot.警告标志{background:#ef9f27}
+.cat-dot.强制标志{background:#1565c0}.cat-dot.优先权标志{background:#f5d433;border:1px solid #999}
+.cat-dot.指路信息{background:#0F6E56}
+.cat-count{font-size:12px;color:var(--muted);font-weight:400}
+.cat-desc{font-size:13px;color:var(--muted);margin:0 0 14px}
+.sign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sign-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+.sign-img{height:96px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.sign{width:88px;height:88px}
+.sign-name{font-size:14px;font-weight:600}
+.sign-de{font-size:11px;color:var(--muted);margin-top:2px;min-height:30px}
+.sign-note{font-size:11.5px;color:#555;text-align:left;margin-top:6px;padding-top:6px;border-top:1px dashed #eee;line-height:1.5}
+/* 国家 */
+.country{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.country h3{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:8px}
+.flag{font-size:22px}
+.country .sub{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 18px;font-size:13.5px}
+.kv div{padding:5px 0;border-bottom:1px dotted #eee}
+.kv b{color:var(--accent)}
+.foot{font-size:12px;color:var(--muted);line-height:1.9;margin-top:34px;border-top:1px solid var(--line);padding-top:16px}
+@media(max-width:640px){.hero h1{font-size:22px}.wrap{padding:16px 12px 50px}.tab{padding:7px 11px;font-size:13px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in"><a class="back" href="index.html">← 返回主页</a><span class="top-t">德国开车速查 · 中德交规差异 · 欧洲各国</span></div></div>
+<div class="wrap">
+
+<div class="hero">
+  <h1>在德国开车，先看这一页</h1>
+  <p class="lead">给中国司机的「落地即用」指南：默认限速、让右原则、车道纪律、几十个常见标志，以及和中国的关键不同。看到标志，对着图鉴一秒看懂。</p>
+  <span class="tag">限速三档</span><span class="tag">让右原则</span><span class="tag">转弯让直行</span><span class="tag">救援通道</span><span class="tag">环保贴纸</span>
+  <div class="alert"><b>最容易出事的 3 条：</b>① 没有标志的路口<span class="hl">一律让右侧来车先走</span>；② 转弯必须让直行、让行人与自行车；③ 不超车就靠最右车道，<span class="hl-r">绝不能右侧超车</span>。这三条和中国习惯差别最大。</div>
+</div>
+
+<div class="tabs">
+  <div class="tab on" data-t="basics">德国交规速查</div>
+  <div class="tab" data-t="diff">中德差异对照</div>
+  <div class="tab" data-t="signs">交通标志图鉴</div>
+  <div class="tab" data-t="europe">欧洲各国专区</div>
+</div>
+
+<!-- ===== 面板1：德国交规速查 ===== -->
+<div class="panel on" id="p-basics">
+  <h2>一、限速：记住三档 + 一个「建议」</h2>
+  <div class="grid">
+    <div class="card"><div class="k">市区（有黄色城镇名牌）</div><div class="v">50 km/h</div><div class="t">从黄色名牌开始，到带斜杠的同款名牌结束。附近测速摄像头密集。</div></div>
+    <div class="card"><div class="k">城外普通公路 / 联邦公路</div><div class="v">100 km/h</div><div class="t">无标志时按 100。交叉口前常另设 70。</div></div>
+    <div class="card"><div class="k">高速公路 · 建议速度</div><div class="v">130 km/h</div><div class="t">约 55% 路段无固定限速，130 是<b>建议</b>而非强制；但超速出事故，责任会大幅上升。</div></div>
+    <div class="card"><div class="k">30 区 / 施工区</div><div class="v">30 / 60–80</div><div class="t">住宅区 30 区整个区域有效；施工区限速执行最严。</div></div>
+  </div>
+
+  <h2>二、路权与让行：德国的「潜规则」</h2>
+  <div class="rule"><div class="rt"><span class="no">1</span>让右原则（Rechts vor Links）</div>
+    <ul><li><span class="hl">没有标志、没有标线、没有红绿灯的路口，右侧来车先行。</span></li>
+    <li>哪怕你觉得自己在「主路」，也要看右边——这是德国驾校反复强调的铁律。</li>
+    <li>看到<span class="hl-b">黑色大叉警告牌</span>，就是在提醒你此路口适用让右原则。</li>
+    <li>黄色菱形（优先道路）赋予你路权，直到「菱形加斜杠」标志为止；之后恢复让右。</li></ul></div>
+  <div class="rule"><div class="rt"><span class="no">2</span>转弯让直行 · 让行人与自行车</div>
+    <ul><li><span class="hl">没有专门转向标志时，一律「转弯让直行」。</span>绿灯左转也要等直行车辆。</li>
+    <li><span class="hl-r">必须让行人和自行车</span>，尤其在斑马线、右转时的自行车道。</li>
+    <li>STOP 牌必须在停止线<span class="hl">完全停稳</span>；减速让行牌要给足距离。</li>
+    <li>环岛：环岛内车辆优先，进入前让行；进环岛不打灯，<b>驶出才打右转灯</b>。</li></ul></div>
+
+  <h2>三、高速公路（Autobahn）生存法则</h2>
+  <div class="rule"><div class="rt"><span class="no">1</span>右侧行驶，左侧超车</div>
+    <ul><li><span class="hl">不超车就靠最右车道。</span>左侧车道只用于超车，超完立刻回右侧。</li>
+    <li><span class="hl-r">严禁右侧超车</span>——这是游客最容易犯、也最容易造成事故的错误。</li>
+    <li>慢车（80–100）完全合法，但必须始终待在最右车道，不要阻挡后方。</li></ul></div>
+  <div class="rule"><div class="rt"><span class="no">2</span>救援通道 Rettungsgasse（重点）</div>
+    <ul><li>车流减速到约 20–30 km/h 就要<span class="hl">立即让出通道</span>，不要等警笛响起。</li>
+    <li><b>两车道：</b>最左车道的车靠左，右侧车道的车靠右。</li>
+    <li><b>三车道：</b>最左靠左，中间和右侧车道都靠右。</li>
+    <li><span class="hl-r">不留出救援通道最低罚 200 欧元</span>；若延误救援，240–320 欧元 + 扣分 + 禁驾 1 个月。</li></ul></div>
+  <div class="rule"><div class="rt"><span class="no">3</span>高速其他要点</div>
+    <ul><li>部分路段有永久或施工限速（80–130），区间测速严格执行。</li>
+    <li>燃油车可以开到快没油再加油；但别把无限速路段当赛道。</li>
+    <li><b>禁止</b>使用雷达探测器、带测速提醒的行车记录仪。</li></ul></div>
+
+  <h2>四、其他必知要点</h2>
+  <div class="grid">
+    <div class="card"><div class="k">酒驾限值</div><div class="v">0.5‰</div><div class="t">21 岁以下或拿照前两年为 <b>0‰</b>（零容忍）。</div></div>
+    <div class="card"><div class="k">手持手机</div><div class="v">违法</div><div class="t">罚款并扣分，免提可用；手机不能拿在手里。</div></div>
+    <div class="card"><div class="k">安全带 / 儿童</div><div class="v">全员</div><div class="t">12 岁以下或身高不足 150cm 必须用儿童座椅。</div></div>
+    <div class="card"><div class="k">环保区 Umweltzone</div><div class="v">绿贴纸</div><div class="t">80+ 城市需要前挡风玻璃贴绿色环保贴纸，无贴纸约罚 100 欧。</div></div>
+    <div class="card"><div class="k">冬季轮胎</div><div class="v">视天气强制</div><div class="t">结冰、积雪、湿滑路面必须用带雪花标志的轮胎，否则保险可能失效。</div></div>
+    <div class="card"><div class="k">随车必备</div><div class="v">3 件</div><div class="t">反光背心、三角警示牌、急救包。</div></div>
+  </div>
+</div>
+
+<!-- ===== 面板2：中德差异 ===== -->
+<div class="panel" id="p-diff">
+  <h2>中国 vs 德国：最容易搞混的地方</h2>
+  <p class="desc">左边是中国常见做法，右边是德国规则。红色为关键差异。</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th style="width:16%">场景</th><th style="width:27%">🇨🇳 中国</th><th style="width:34%">🇩🇪 德国</th><th>给中国司机的提醒</th></tr></thead>
+    <tbody>
+      <tr><td>默认限速</td><td>城市道路多 60，快速路 80，高速 120</td><td class="diff">市区 50、城外 100、高速 130 建议</td><td>见黄色城镇名牌就按 50，别按国内 60 开。</td></tr>
+      <tr><td>无标线路口</td><td>让右 + 让主路，实际看标志灯</td><td class="diff">严格「右侧来车优先」Rechts vor Links</td><td>没牌没线没灯＝一定看右边，别 assuming 自己在主路。</td></tr>
+      <tr><td>转弯与行人</td><td>转弯让直行，礼让行人</td><td class="diff">严格让直行、让行人和自行车，右转特别注意自行车道</td><td>绿灯左转也要等直行；右转先看看有没有自行车。</td></tr>
+      <tr><td>高速车道</td><td>快慢车道分得较松</td><td class="diff">左道只超车，不超车一律靠最右，严禁右超</td><td>长时间占左道会被提醒甚至罚款。</td></tr>
+      <tr><td>高速堵车</td><td>无强制让出通道习惯</td><td class="diff">必须让出 Rettungsgasse 救援通道，罚 200€ 起</td><td>一减速就让，别等警笛。</td></tr>
+      <tr><td>环岛</td><td>多数让行进入环岛车辆</td><td>环岛内优先，进入让行，<b>驶出才打灯</b></td><td>进环岛别打转向灯，出环岛记得打右灯。</td></tr>
+      <tr><td>限速执法</td><td>扣分 + 罚款</td><td>只罚款不扣分（**），摄像头极多</td><td>别以为不扣分就能超速，罚单来得很快。</td></tr>
+      <tr><td>城市低排放区</td><td>部分城市限行外地车</td><td class="diff">80+ 城市环保区，须贴绿色环保贴纸</td><td>租车取车时确认前挡风玻璃有绿色贴纸。</td></tr>
+      <tr><td>停车</td><td>路边临停较随意</td><td>P 牌规则严格，Halt（临停）与 Parken（停放）分开</td><td>看清有没有斜杠，别在禁停区停车。</td></tr>
+      <tr><td>中国驾照</td><td>——</td><td>短期可用中国驾照 + 德文翻译件（或国际驾照）租车</td><td>租车前和租车公司确认翻译件要求。</td></tr>
+    </tbody>
+  </table></div>
+  <p class="desc" style="margin-top:10px">** 德国超速通常只罚款、不扣分；但危及他人、酒驾等严重违法仍会扣分、禁驾。以当地最新法规为准。</p>
+</div>
+
+<!-- ===== 面板3：标志图鉴 ===== -->
+<div class="panel" id="p-signs">
+  <h2>德国常见交通标志图鉴（59 个）</h2>
+  <p class="desc">看颜色就能判断含义：红圈禁止、红三角警告、蓝圆强制、黄菱形优先、蓝/黄方牌指路。</p>
+  <div class="cat-block"><h3><span class="cat-dot 禁令标志"></span>禁令标志 <span class="cat-count">15 个</span></h3><p class="cat-desc">红圈＝禁止。圈内图案即被禁止的对象，红色斜杠表示解除。</p><div class="sign-grid"><div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><text x="50" y="63" font-size="36" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">50</text></svg></div><div class="sign-name">限速</div><div class="sign-de">Geschwindigkeitsbegrenzung</div><div class="sign-note">红圈内数字＝最高时速上限，单位 km/h。见到黄色城镇名牌即自动限速 50。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><text x="50" y="63" font-size="36" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">50</text><line x1="24" y1="76" x2="76" y2="24" stroke="#333" stroke-width="6"/></svg></div><div class="sign-name">解除限速</div><div class="sign-de">Ende der Geschwindigkeitsbegrenzung</div><div class="sign-note">灰色/黑色斜杠表示限制结束。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><text x="50" y="46" font-size="26" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial">LKW</text></svg></div><div class="sign-name">禁止超车</div><div class="sign-de">Überholen verboten</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><g transform="translate(38,44) scale(0.45,0.45)"><path d="M-18,4 L-14,-6 L-6,-12 L10,-12 L18,-4 L20,6 L20,10 L-20,10 L-20,4 Z" fill="#d32f2f"/><circle cx="-11" cy="11" r="4.5" fill="#d32f2f"/><circle cx="12" cy="11" r="4.5" fill="#d32f2f"/></g><g transform="translate(62,60) scale(-0.45,0.45)"><path d="M-18,4 L-14,-6 L-6,-12 L10,-12 L18,-4 L20,6 L20,10 L-20,10 L-20,4 Z" fill="#222"/><circle cx="-11" cy="11" r="4.5" fill="#222"/><circle cx="12" cy="11" r="4.5" fill="#222"/></g></svg></div><div class="sign-name">禁止一切超车</div><div class="sign-de">Überholen verboten</div><div class="sign-note">红车在前、黑车在后示意禁止超越。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><rect x="30" y="38" width="40" height="24" fill="#1565c0"/></svg></div><div class="sign-name">禁止驶入</div><div class="sign-de">Einfahrt verboten</div><div class="sign-note">单行道出口或禁止进入，注意可能有车从对面驶出。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><rect x="24" y="43" width="52" height="14" fill="#222"/><rect x="24" y="43" width="52" height="14" fill="none" stroke="#fff" stroke-width="2"/></svg></div><div class="sign-name">全面禁行</div><div class="sign-de">Sperrung</div><div class="sign-note">所有车辆禁止通行。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><g transform="translate(50,52) scale(0.62,0.62)"><path d="M-18,4 L-14,-6 L-6,-12 L10,-12 L18,-4 L20,6 L20,10 L-20,10 L-20,4 Z" fill="#222"/><circle cx="-11" cy="11" r="4.5" fill="#222"/><circle cx="12" cy="11" r="4.5" fill="#222"/></g></svg></div><div class="sign-name">禁止机动车</div><div class="sign-de">Kraftfahrzeuge verboten</div><div class="sign-note">自行车和行人仍可通过。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><text x="50" y="66" font-size="44" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">P</text></svg></div><div class="sign-name">禁止停车</div><div class="sign-de">Parken verboten</div><div class="sign-note">红圈 P＝禁止停车（短停也不行）。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><text x="50" y="66" font-size="44" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">P</text><line x1="22" y1="78" x2="78" y2="22" stroke="#d32f2f" stroke-width="7"/></svg></div><div class="sign-name">禁止停放</div><div class="sign-de">Abschleppzone</div><div class="sign-note">带斜杠＝禁止停放，违者可能被拖车。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><path d="M30,44 h14 l16,-12 v36 l-16,-12 h-14 Z" fill="#222"/><path d="M68,40 q10,10 0,20" stroke="#222" stroke-width="3" fill="none"/></svg></div><div class="sign-name">禁止鸣笛</div><div class="sign-de">Hupen verboten</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><g fill="#222"><circle cx="50" cy="30" r="9"/><path d="M38,46 Q50,40 62,46 L66,72 L55,72 L53,90 L46,90 L45,70 L36,90 L28,87 Z"/></g></svg></div><div class="sign-name">禁止行人</div><div class="sign-de">Fußgänger verboten</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><g stroke="#222" stroke-width="3" fill="none"><circle cx="30" cy="68" r="13"/><circle cx="72" cy="68" r="13"/><path d="M30,68 L46,42 L60,68 M46,42 L56,42 M40,42 L50,42 M72,68 L60,42 L52,42" stroke-linecap="round"/></g></svg></div><div class="sign-name">禁止自行车</div><div class="sign-de">Radfahrer verboten</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><text x="50" y="62" font-size="24" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">3,5t</text></svg></div><div class="sign-name">限制总重</div><div class="sign-de">Gewichtsbeschränkung</div><div class="sign-note">常见于桥梁、老城街道。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><line x1="22" y1="78" x2="78" y2="22" stroke="#d32f2f" stroke-width="7"/></svg></div><div class="sign-name">解除所有禁令</div><div class="sign-de">Ende aller Beschränkungen</div><div class="sign-note">灰色斜杠表示此前所有限制结束。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><path d="M34,58 L34,42 Q34,30 50,30 L66,30 M66,30 L58,22 M66,30 L58,38" stroke="#222" stroke-width="6" fill="none"/><line x1="62" y1="42" x2="72" y2="70" stroke="#222" stroke-width="6"/></svg></div><div class="sign-name">禁止掉头</div><div class="sign-de">Wenden verboten</div></div></div></div>
+<div class="cat-block"><h3><span class="cat-dot 警告标志"></span>警告标志 <span class="cat-count">20 个</span></h3><p class="cat-desc">红三角＝警告前方路况，提前减速做好准备。</p><div class="sign-grid"><div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><text x="50" y="72" font-size="48" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">!</text></svg></div><div class="sign-name">注意危险</div><div class="sign-de">Achtung / Gefahr</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M28,50 h30 v22" stroke="#222" stroke-width="8" fill="none"/><path d="M18,50 h40" stroke="#222" stroke-width="8" fill="none"/></svg></div><div class="sign-name">右侧支路</div><div class="sign-de">Kreuzung mit Nebenstraße rechts</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M72,50 h-30 v22" stroke="#222" stroke-width="8" fill="none"/><path d="M18,50 h64" stroke="#222" stroke-width="8" fill="none"/></svg></div><div class="sign-name">左侧支路</div><div class="sign-de">Kreuzung mit Nebenstraße links</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M50,28 v44 M28,50 h44" stroke="#222" stroke-width="8" fill="none"/></svg></div><div class="sign-name">十字路口</div><div class="sign-de">Kreuzung</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M50,42 a16,16 0 1,1 -12,6" stroke="#222" stroke-width="6" fill="none"/><path d="M38,48 l-4,-10 l10,2" fill="#222"/></svg></div><div class="sign-name">环岛</div><div class="sign-de">Kreisverkehr</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><rect x="36" y="30" width="28" height="44" rx="4" fill="#222"/><circle cx="50" cy="40" r="4" fill="#e53935"/><circle cx="50" cy="52" r="4" fill="#fdd835"/><circle cx="50" cy="64" r="4" fill="#43a047"/></svg></div><div class="sign-name">红绿灯</div><div class="sign-de">Lichtzeichenanlage</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><g fill="#222"><circle cx="50" cy="34" r="7"/><path d="M42,44 h16 l4,26 h-8 l-2,14 h-6 l-1,-14 h-7 Z"/></g></svg></div><div class="sign-name">人行横道</div><div class="sign-de">Fußgängerübergang</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><g fill="#222"><circle cx="42" cy="42" r="8"/><circle cx="62" cy="44" r="7"/><path d="M30,74 v-12 q0,-12 12,-12 h2 q12,0 12,12 v12 h-8 v-12 h-10 v12 Z"/><path d="M56,74 v-10 q0,-10 8,-10 h2 q8,0 8,10 v10 h-6 v-9 h-8 v9 Z"/></g></svg></div><div class="sign-name">注意儿童</div><div class="sign-de">Kinder</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><g stroke="#222" stroke-width="3" fill="none"><circle cx="30" cy="68" r="13"/><circle cx="72" cy="68" r="13"/><path d="M30,68 L46,42 L60,68 M46,42 L56,42 M40,42 L50,42 M72,68 L60,42 L52,42" stroke-linecap="round"/></g></svg></div><div class="sign-name">自行车</div><div class="sign-de">Radverkehr</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M30,34 v34 M70,34 v34 M30,34 h40" stroke="#222" stroke-width="5" fill="none"/><path d="M30,50 L70,40" stroke="#222" stroke-width="4"/></svg></div><div class="sign-name">铁路道口(栏)</div><div class="sign-de">Bahnübergang mit Schranken</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M30,38 L40,62 M50,38 L60,62 M70,38 L80,62 M24,62 h56" stroke="#222" stroke-width="5" fill="none"/><text x="50" y="34" font-size="12" fill="#222" text-anchor="middle">E</text></svg></div><div class="sign-name">铁路道口</div><div class="sign-de">Bahnübergang</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M40,40 q10,-10 20,0 M34,52 q14,-12 28,0 M44,66 q8,-8 16,0" stroke="#222" stroke-width="4" fill="none"/><circle cx="50" cy="76" r="3" fill="#222"/></svg></div><div class="sign-name">路面湿滑</div><div class="sign-de">Rutschgefahr</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M26,44 h34 M26,54 h44 M26,64 h30" stroke="#222" stroke-width="3.5" fill="none"/><path d="M60,40 l8,-6 l-2,10 z M70,50 l8,-6 l-2,10 z" fill="#222"/></svg></div><div class="sign-name">注意侧风</div><div class="sign-de">Seitenwind</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M32,72 q0,-24 20,-24 t18,-20" stroke="#222" stroke-width="6" fill="none"/></svg></div><div class="sign-name">连续弯道</div><div class="sign-de">Kurven</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M26,72 L50,42 L74,72" stroke="#222" stroke-width="6" fill="none"/><text x="50" y="40" font-size="14" fill="#222" text-anchor="middle" font-weight="700">10%</text></svg></div><div class="sign-name">陡坡</div><div class="sign-de">Steigung / Gefälle</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M50,36 L64,70 L36,70 Z" fill="none" stroke="#222" stroke-width="5"/><text x="50" y="64" font-size="20" font-weight="700" fill="#222" text-anchor="middle">!</text></svg></div><div class="sign-name">事故多发</div><div class="sign-de">Unfallschwerpunkt</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M30,30 L70,70 M70,30 L30,70" stroke="#222" stroke-width="7" fill="none"/><path d="M22,50 h12 M66,50 h12 M50,22 v12 M50,66 v12" stroke="#222" stroke-width="4"/></svg></div><div class="sign-name">让右原则路口</div><div class="sign-de">Rechts vor Links</div><div class="sign-note">黑色大叉＝这个路口适用右侧来车优先。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M34,66 q-4,-16 8,-18 q4,-12 14,-10 q8,2 8,12 q8,4 4,16 Z" fill="#222"/><path d="M40,48 l-4,-10 M62,48 l4,-10" stroke="#222" stroke-width="4"/></svg></div><div class="sign-name">注意动物</div><div class="sign-de">Wildwechsel</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><path d="M28,70 L44,44 L60,70 Z" fill="#f5d433" stroke="#222" stroke-width="4"/><path d="M30,70 h40" stroke="#222" stroke-width="5"/><path d="M62,70 L76,44" stroke="#222" stroke-width="5"/></svg></div><div class="sign-name">道路施工</div><div class="sign-de">Baustelle</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,6 94,86 6,86" fill="#fff" stroke="#d32f2f" stroke-width="8" stroke-linejoin="round"/><g fill="#222"><rect x="28" y="48" width="12" height="18" rx="3"/><rect x="44" y="44" width="12" height="22" rx="3"/><rect x="60" y="40" width="12" height="26" rx="3"/></g></svg></div><div class="sign-name">交通拥堵</div><div class="sign-de">Stau</div></div></div></div>
+<div class="cat-block"><h3><span class="cat-dot 强制标志"></span>强制标志 <span class="cat-count">10 个</span></h3><p class="cat-desc">蓝圆＝必须遵从的指令（必须走/必须转/最低速）。</p><div class="sign-grid"><div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><path d="M26,50 L70,50 M74,50 L60,38 M74,50 L60,62" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sign-name">靠右行驶</div><div class="sign-de">Rechts fahren</div><div class="sign-note">右侧通行，不超车务必靠最右车道。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><path d="M50,78 L50,32 M50,28 L38,42 M50,28 L62,42" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sign-name">直行</div><div class="sign-de">Geradeaus</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><path d="M74,50 L30,50 M26,50 L40,38 M26,50 L40,62" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sign-name">左转</div><div class="sign-de">Links abbiegen</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><path d="M26,50 L70,50 M74,50 L60,38 M74,50 L60,62" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sign-name">右转</div><div class="sign-de">Rechts abbiegen</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><path d="M50,38 a18,18 0 1,1 -14,7" stroke="#fff" stroke-width="8" fill="none"/><path d="M36,45 l-4,-12 l12,3" fill="#fff"/></svg></div><div class="sign-name">环岛行驶</div><div class="sign-de">Kreisverkehr</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><circle cx="50" cy="50" r="34" fill="#1565c0"/><text x="50" y="62" font-size="30" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">60</text></svg></div><div class="sign-name">最低限速</div><div class="sign-de">Mindestgeschwindigkeit</div><div class="sign-note">蓝底白字＝最低速度，常与最高限速配套出现在高速。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><g stroke="#fff" stroke-width="3" fill="none"><circle cx="30" cy="68" r="13"/><circle cx="72" cy="68" r="13"/><path d="M30,68 L46,42 L60,68 M46,42 L56,42 M40,42 L50,42 M72,68 L60,42 L52,42" stroke-linecap="round"/></g></svg></div><div class="sign-name">自行车道</div><div class="sign-de">Radweg</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><g fill="#fff"><circle cx="50" cy="30" r="9"/><path d="M38,46 Q50,40 62,46 L66,72 L55,72 L53,90 L46,90 L45,70 L36,90 L28,87 Z"/></g></svg></div><div class="sign-name">人行道</div><div class="sign-de">Fußweg</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><path d="M32,64 V40 q0,-8 8,-8 h20 q8,0 8,8 v24 h-10 v-16 h-16 v16 Z" fill="#fff"/><circle cx="40" cy="70" r="4" fill="#fff"/><circle cx="60" cy="70" r="4" fill="#fff"/></svg></div><div class="sign-name">公交专用道</div><div class="sign-de">Bussonderfahrstreifen</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="44" fill="#1565c0" stroke="#1565c0" stroke-width="4"/><path d="M50,78 L50,32 M50,28 L38,42 M50,28 L62,42" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M26,50 L70,50 M74,50 L60,38 M74,50 L60,62" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sign-name">直行与右转</div><div class="sign-de">Geradeaus und rechts</div></div></div></div>
+<div class="cat-block"><h3><span class="cat-dot 优先权标志"></span>优先权标志 <span class="cat-count">4 个</span></h3><p class="cat-desc">黄色菱形＝你有优先通行权；红三角/STOP＝你必须让行。</p><div class="sign-grid"><div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,7 93,50 50,93 7,50" fill="#f5d433" stroke="#333" stroke-width="4" stroke-linejoin="round"/></svg></div><div class="sign-name">优先道路</div><div class="sign-de">Vorfahrtsstraße</div><div class="sign-note">黄色菱形＝你在优先道路上，所有路口享有先行权。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,7 93,50 50,93 7,50" fill="#f5d433" stroke="#333" stroke-width="4" stroke-linejoin="round"/><line x1="25" y1="75" x2="75" y2="25" stroke="#333" stroke-width="6"/></svg></div><div class="sign-name">优先道路终止</div><div class="sign-de">Ende der Vorfahrtsstraße</div><div class="sign-note">见此标志后，无标线路口恢复「让右原则」。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,8 74,17 88,40 88,66 66,86 34,86 12,66 12,40 26,17" fill="#d32f2f" stroke="#fff" stroke-width="4"/><text x="50" y="58" font-size="24" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial">STOP</text></svg></div><div class="sign-name">停车让行</div><div class="sign-de">STOP</div><div class="sign-note">必须在停止线完全停稳，观察确认安全后再走。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><polygon points="50,14 92,86 8,86" fill="#fff" stroke="#d32f2f" stroke-width="9" stroke-linejoin="round"/></svg></div><div class="sign-name">减速让行</div><div class="sign-de">Vorfahrt gewähren</div><div class="sign-note">减速观察，必要时停车让行。</div></div></div></div>
+<div class="cat-block"><h3><span class="cat-dot 指路信息"></span>指路信息 <span class="cat-count">10 个</span></h3><p class="cat-desc">蓝色或黄色方牌＝方向与道路信息，看色识功能。</p><div class="sign-grid"><div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="6" width="88" height="88" rx="8" fill="#1565c0"/><path d="M30,70 L46,30 h8 L70,70 h-12 L50,46 L40,70 Z" fill="#fff"/><path d="M22,70 h56" stroke="#fff" stroke-width="5"/></svg></div><div class="sign-name">高速公路</div><div class="sign-de">Autobahn</div><div class="sign-note">蓝色盾形＝高速公路入口。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="6" width="88" height="88" rx="8" fill="#1565c0"/><path d="M30,66 L54,40 M54,40 L46,40 M54,40 L54,48" stroke="#fff" stroke-width="8" fill="none"/><path d="M30,40 L30,66" stroke="#fff" stroke-width="8"/></svg></div><div class="sign-name">高速出口</div><div class="sign-de">Autobahnausfahrt</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="6" width="88" height="88" rx="8" fill="#1565c0"/><rect x="20" y="34" width="12" height="46" fill="#fff"/><path d="M42,57 L74,57 M68,48 L78,57 L68,66" stroke="#fff" stroke-width="9" fill="none"/></svg></div><div class="sign-name">单行道</div><div class="sign-de">Einbahnstraße</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="14" width="88" height="72" rx="6" fill="#f5d433" stroke="#222" stroke-width="2"/><text x="50" y="50" font-size="13" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">München</text><text x="50" y="72" font-size="9" fill="#222" text-anchor="middle"> Stadt</text></svg></div><div class="sign-name">进入城镇(限速50)</div><div class="sign-de">Ortsschild</div><div class="sign-note">黄色牌＝进入市区，自动限速 50 km/h，无需额外限速牌。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="14" width="88" height="72" rx="6" fill="#f5d433" stroke="#222" stroke-width="2"/><line x1="14" y1="76" x2="86" y2="24" stroke="#222" stroke-width="4"/><text x="50" y="50" font-size="13" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">München</text></svg></div><div class="sign-name">驶离城镇</div><div class="sign-de">Ortsende</div><div class="sign-note">带斜杠＝驶离市区，50 限速结束。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><circle cx="50" cy="50" r="45" fill="#fff" stroke="#d32f2f" stroke-width="9"/><text x="50" y="62" font-size="34" font-weight="700" fill="#222" text-anchor="middle" font-family="Arial, sans-serif">30</text><text x="50" y="92" font-size="11" fill="#222" text-anchor="middle">Zone</text></svg></div><div class="sign-name">30 区</div><div class="sign-de">Tempo 30 Zone</div><div class="sign-note">整个区域限速 30，区内通常不再重复设牌。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="6" width="88" height="88" rx="8" fill="#1565c0"/><text x="50" y="70" font-size="54" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">P</text></svg></div><div class="sign-name">停车场</div><div class="sign-de">Parkplatz</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="6" width="88" height="88" rx="8" fill="#1565c0"/><path d="M38,24 h24 v14 h-24 Z M34,38 h32 v42 h-32 Z" fill="#fff"/><path d="M56,44 h12 v24 h-12" fill="none" stroke="#fff" stroke-width="5"/></svg></div><div class="sign-name">加油站</div><div class="sign-de">Tankstelle</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="6" width="88" height="88" rx="8" fill="#1565c0"/><circle cx="50" cy="50" r="24" fill="#fff"/><circle cx="50" cy="50" r="9" fill="#1565c0"/><text x="50" y="88" font-size="9" fill="#fff" text-anchor="middle">Umwelt</text></svg></div><div class="sign-name">环保区</div><div class="sign-de">Umweltzone</div><div class="sign-note">进入德国 80+ 城市环保区，前挡风玻璃须贴绿色环保贴纸（Umweltplakette）。</div></div>
+<div class="sign-card"><div class="sign-img"><svg viewBox="0 0 100 100" class="sign" ><rect x="6" y="6" width="88" height="88" rx="8" fill="#1565c0"/><path d="M28,68 L46,38 L64,68 Z" fill="#f5d433" stroke="#fff" stroke-width="3"/><path d="M26,74 h48" stroke="#fff" stroke-width="5"/><path d="M56,70 L76,38" stroke="#fff" stroke-width="5"/></svg></div><div class="sign-name">施工路段</div><div class="sign-de">Baustelle</div></div></div></div>
+</div>
+
+<!-- ===== 面板4：欧洲各国 ===== -->
+<div class="panel" id="p-europe">
+  <h2>欧洲各国与德国的不同</h2>
+  <p class="desc">从德国开去邻国，最容易踩坑的是<b>高速收费/通行证</b>、<b>雨天限速</b>和<b>进城限制区</b>。以下按国家分区，对照德国列出差异。</p>
+
+  <h3>总览：限速 · 酒驾 · 高速收费</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>国家</th><th>市区 / 公路 / 高速（km/h）</th><th>酒驾限值 ‰</th><th>高速收费</th><th>与德国最大不同</th></tr></thead>
+    <tbody>
+      <tr><td>🇩🇪 德国</td><td>50 / 100 / 不限速（建议 130）</td><td>0.5</td><td class="diff">乘用车免费</td><td>基准；让右原则、救援通道</td></tr>
+      <tr><td>🇫🇷 法国</td><td>50 / 80(部分90) / 130（雨天 110）</td><td>0.5</td><td class="diff">收费（按里程）</td><td>雨天高速降 110、无标记口右侧优先、ZFE 环保区</td></tr>
+      <tr><td>🇮🇹 意大利</td><td>50 / 90 / 130（雨天 110）</td><td>0.5</td><td class="diff">收费（按里程）</td><td>历史城区 ZTL 限行、罚款高、限速摄像头极多</td></tr>
+      <tr><td>🇦🇹 奥地利</td><td>50 / 100 / 130</td><td>0.5</td><td class="diff">电子通行证 Vignette</td><td>必须买 vignette 贴纸/电子票，车牌要准确</td></tr>
+      <tr><td>🇨🇭 瑞士</td><td>50 / 80 / 120</td><td>0.5</td><td class="diff">电子通行证 Vignette</td><td>高速上限 120、必须买 vignette（年票）</td></tr>
+      <tr><td>🇨🇿 捷克</td><td>50 / 90 / 130</td><td class="diff">0.0</td><td>电子通行证</td><td>酒驾零容忍、全天开灯</td></tr>
+      <tr><td>🇵🇱 波兰</td><td>50 / 90 / 高速 140</td><td>约 0.2</td><td>部分收费</td><td>全天开灯、住宅区可低至 20</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="country">
+    <h3><span class="flag">🇫🇷</span>法国：和德国最不一样</h3>
+    <div class="sub">同为左舵、靠右行驶，但路权与收费差别大。</div>
+    <div class="kv">
+      <div><b>雨天限速：</b>高速 130 → 110，双车道快速路 110 → 100；雾天能见度 &lt;50m 时全境 50。</div>
+      <div><b>让右原则：</b>无标志、无线、无灯的路口「右侧优先」(priorité à droite)，乡镇老街很常见。</div>
+      <div><b>环岛：</b>多数入口有「让行」牌，环岛内优先；但巴黎凯旋门一带是<b>进入者优先</b>的反例。</div>
+      <div><b>高速收费：</b>入口取票、出口付费，跟紧 CB（银行卡）车道；长途可预算法国过路费。</div>
+      <div><b>环保区 ZFE：</b>进城市特定区要 Crit'Air 贴纸，按日期查当地规定。</div>
+      <div><b>加油：</b>Gazole＝柴油，别加错。</div>
+    </div>
+  </div>
+
+  <div class="country">
+    <h3><span class="flag">🇮🇹</span>意大利：ZTL 与罚款</h3>
+    <div class="sub">历史城区限制多，摄像头密集。</div>
+    <div class="kv">
+      <div><b>高速：</b>130，雨天 110；收费按里程。</div>
+      <div><b>ZTL 限行区：</b>大量老城中心禁止或限时进入，误入罚款常见，租车公司会代扣。</div>
+      <div><b>罚款：</b>普遍较高，超速、未让行都重罚。</div>
+      <div><b>停车：</b>蓝线为收费停车，白线多免费，黄线通常禁停。</div>
+    </div>
+  </div>
+
+  <div class="country">
+    <h3><span class="flag">🇦🇹</span>奥地利 & <span class="flag">🇨🇭</span>瑞士： vignette 别忘买</h3>
+    <div class="sub">高速和快速路必须购买通行票，不像德国免费。</div>
+    <div class="kv">
+      <div><b>奥地利：</b>高速/快速路要电子 vignette，与车牌绑定，车牌填错视同未购买。</div>
+      <div><b>瑞士：</b>高速上限 120，须购买 vignette 年票贴在前挡风玻璃。</div>
+      <div><b>共同点：</b>区间测速严格；堵车必须让出救援通道；车内备反光背心、警示牌、急救包。</div>
+    </div>
+  </div>
+
+  <div class="country">
+    <h3><span class="flag">🇨🇿</span>捷克 & <span class="flag">🇵🇱</span>波兰 & <span class="flag">🇸🇰</span>斯洛伐克</h3>
+    <div class="sub">中东欧：注意开灯、酒驾零容忍与电子通行证。</div>
+    <div class="kv">
+      <div><b>捷克/斯洛伐克：</b>酒精限值 0.0，全天开近光或日行灯；高速电子通行证只能官网买。</div>
+      <div><b>波兰：</b>住宅区限速可低至 20；全天开灯。</div>
+      <div><b>环岛：</b>多数国家「进环岛不打灯、出环岛打灯」，与德国一致。</div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+<b>资料来源与免责声明：</b>本页依据公开驾驶指南交叉整理（germanyrentacar.com 中文指南 2026、穷游/租租车德国自驾指南、Carlove 欧洲各国交通规则、Driving In 法国道路规则 2026-08、巴黎机场租车法国规则等），仅供中国司机短期在德/欧自驾时快速查阅。限速、收费、环保区与驾照要求会随国家、地区和日期变化，<b>请以现场标志和当地官方最新规定为准</b>。本页不构成法律或驾驶培训意见，安全驾驶、遵守当地法规由驾驶者本人负责。
+</div>
+
+</div>
+<script>
+(function(){
+  var tabs=document.querySelectorAll('.tab');
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){
+      tabs.forEach(function(x){x.classList.remove('on')});
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+      t.classList.add('on');
+      document.getElementById('p-'+t.dataset.t).classList.add('on');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+})();
+</script>
+</body>
+</html>
