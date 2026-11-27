@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>英伟达客户地区分布 · 腾讯对外投资</title>
+<script src="assets/echarts.min.js"></script>
+<style>
+:root{--ink:#1a1a1a;--muted:#6b6b6b;--line:#e6e2d8;--paper:#f7f6f2;--accent:#8a6d3b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Songti SC",sans-serif;line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+h1{font-size:25px;margin:0 0 6px}
+.sub{color:var(--muted);font-size:13.5px;margin-bottom:22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+.card h2{font-size:19px;margin:0 0 4px;padding-left:11px;border-left:4px solid var(--accent)}
+.card .meta{color:var(--muted);font-size:12.5px;margin:0 0 10px}
+.chart{width:100%;height:420px}
+.src{font-size:11.5px;color:#888;line-height:1.85;border-top:1px dashed #eee;padding-top:10px;margin-top:6px}
+.src b{color:#666}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:8px 0 4px}
+.kv div{background:#faf8f3;border-radius:8px;padding:10px 12px;font-size:12.5px}
+.kv b{display:block;font-size:18px;color:var(--accent);margin-top:3px}
+.warn{background:#FAEEDA;border-left:3px solid #BA7517;border-radius:6px;padding:9px 12px;font-size:12.5px;color:#633806;margin-top:10px}
+.foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;line-height:1.9}
+@media(max-width:640px){.chart{height:360px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>英伟达客户分布 & 腾讯对外投资</h1>
+<div class="sub">两组数据口径不同：英伟达为财报官方披露的地区收入占比；腾讯投资逐笔金额为公开持股比例 × 股价的估算值（官方只披露总额）。</div>
+
+<div class="card">
+  <h2>一、英伟达主要客户：按地区收入占比</h2>
+  <p class="meta">2027 财年 Q3（截至 2026-10-25）单季总营收 1,158.44 亿美元，按<strong>直接客户总部所在地</strong>统计</p>
+  <div class="kv">
+    <div>美国<b>62.93%</b></div>
+    <div>中国台湾<b>26.15%</b></div>
+    <div>中国（含香港）<b>9.54%</b></div>
+    <div>其他地区<b>1.38%</b></div>
+  </div>
+  <div id="c1" class="chart"></div>
+  <div class="src"><b>数据来源：</b>英伟达 FY2027 Q3 补充财务文件（CFO Commentary，2026-11-17）；鉅亨网/BlockBeats 2026-11-18 转述、新浪财经 2026-11-20。中国（含香港）当季收入 110.50 亿美元，同比 +272%、环比 +40%；前三季累计 234.80 亿美元（约 1565 亿元人民币）。<br><b>口径提醒：</b>按客户总部统计≠芯片最终流向；台湾高占比主要是总部在台的代工/系统厂（整机再运美国）。Q4 指引 1,300 亿美元明确不含中国数据中心收入。</div>
+  <div class="warn">其中中国占 <b>9.54%</b>（约 110.5 亿美元）。想看这个网站？英伟达官网投资者关系页 investor.nvidia.com 的季度财报补充材料，以及新浪财经、鉅亨网均有报道。</div>
+</div>
+
+<div class="card">
+  <h2>二、腾讯对外投资：总规模与主要标的</h2>
+  <p class="meta">截至 2026-09-30：上市投资（不含附属公司）公允价值 5,054 亿元 + 非上市投资账面价值 3,972 亿元 ≈ <strong>9,026 亿元人民币</strong></p>
+  <div id="c2" class="chart"></div>
+  <div class="src"><b>数据来源：</b>腾讯 3Q2026 业绩公告（tencent.com，2026-11-18）披露总额；逐笔金额＝公开持股比例 × 2026-11-27 股价，来自拼多多 20-F（2026-05-09，腾讯持股 13.8%/7.83 亿股）、雪球用户估算帖（2026-11-20）、财华网 2026-07、摩根士丹利 SOTP 报告 2026-10。<b>逐笔金额为估算，非腾讯官方披露</b>，误差可达 5%–10%。<br><b>口径提醒：</b>该总额不含已并表的附属公司（腾讯音乐、阅文、Riot 等），上市部分用公允价值、非上市部分用账面价值，两者计量基础不同。</div>
+  <div class="warn">腾讯第一大投资是 <b>拼多多（PDD.US）</b>：持股 13.8%，估算市值约 1,242–1,300 亿元，占上市投资组合约 24.6%、占整个对外投资盘子约 13.8%。想看这个数据？腾讯官网投资者关系页的季度业绩公告看总额，逐笔持股看被投公司的 20-F/年报股东结构，或用雪球/财华网的持仓估算。</div>
+</div>
+
+<div class="foot">
+以上为公开数据整理，不构成投资建议。英伟达数据为一手财报口径；腾讯逐笔投资金额为第三方估算（官方不披露逐笔金额），非上市部分（Flipkart 约850亿、微众银行约675亿、Epic Games 约420亿）依赖融资/榜单估值，误差较大。数据截至 2026-11-27。
+</div>
+</div>
+<script>
+echarts.init(document.getElementById('c1')).setOption({
+  tooltip:{trigger:'item',formatter:'{b}: {c}% ({d}%)'},
+  legend:{orient:'vertical',right:'6%',top:'middle',textStyle:{fontSize:12}},
+  series:[{
+    type:'pie',radius:['42%','68%'],center:['36%','52%'],
+    label:{formatter:'{b}\n{c}%',fontSize:12},
+    data:[
+      {value:62.93,name:'美国',itemStyle:{color:'#1D9E75'}},
+      {value:26.15,name:'中国台湾',itemStyle:{color:'#378ADD'}},
+      {value:9.54,name:'中国（含香港）',itemStyle:{color:'#D85A30'}},
+      {value:1.38,name:'其他地区',itemStyle:{color:'#B4B2A9'}}
+    ]
+  }]
+});
+echarts.init(document.getElementById('c2')).setOption({
+  tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:'{b}<br/>约 {c} 亿元人民币'},
+  grid:{left:110,right:70,top:16,bottom:30},
+  xAxis:{type:'value',name:'亿元人民币',axisLabel:{fontSize:11,color:'#888'},splitLine:{lineStyle:{color:'#f0ece4'}}},
+  yAxis:{type:'category',data:['美团','快手','Epic Games','Spotify','Sea 冬海','微众银行','Flipkart','拼多多'],axisLabel:{fontSize:12}},
+  series:[{
+    type:'bar',barWidth:'55%',
+    label:{show:true,position:'right',formatter:'{c} 亿',fontSize:11},
+    data:[
+      {value:70,itemStyle:{color:'#B4B2A9'}},
+      {value:75,itemStyle:{color:'#B4B2A9'}},
+      {value:420,itemStyle:{color:'#85B7EB'}},
+      {value:470,itemStyle:{color:'#85B7EB'}},
+      {value:490,itemStyle:{color:'#85B7EB'}},
+      {value:675,itemStyle:{color:'#AFA9EC'}},
+      {value:850,itemStyle:{color:'#AFA9EC'}},
+      {value:1242,itemStyle:{color:'#D85A30'}}
+    ]
+  }]
+});
+</script>
+</body>
+</html>
