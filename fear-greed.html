@@ -31,9 +31,12 @@ a{color:var(--accent)}
 h2{font-size:20px;margin:26px 0 10px;padding-left:12px;border-left:4px solid var(--accent)}
 p.desc{color:var(--muted);font-size:13.5px;margin:0 0 14px}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1000px}
-th,td{padding:10px 11px;text-align:left;border-bottom:1px solid #eee;vertical-align:middle}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px}
+th,td{padding:10px 12px;text-align:center;border-bottom:1px solid #eee;vertical-align:middle}
 th{background:#faf8f3;color:#555;font-weight:600;white-space:nowrap}
+th.grp th{background:#f0ece1;color:#6b4f1d;font-size:13px;border-bottom:1px solid #d9d2c0}
+th:first-child,td:first-child{text-align:left}
+tr.grp th[rowspan]{background:#f0ece1;color:#6b4f1d}
 tr:last-child td{border-bottom:none}
 td:first-child{white-space:nowrap}
 .up{color:#c0392b;font-weight:700}.dn{color:#1e8449;font-weight:700}
@@ -57,7 +60,7 @@ td.delta{color:#8a6d3b;font-size:12.5px;white-space:nowrap}
   <h1>恐慌的时候，该害怕还是该买？</h1>
   <p class="lead">纳斯达克、标普500、VIX 恐慌指数、CNN 恐惧贪婪指数，四条线看近 30 年关系；下方用历史数据回答：当 VIX 到 30/50/80、CNN 极度恐慌时，买进去持有一年，收益到底如何。</p>
   <span class="pill">1996–2026 近30年</span><span class="pill">月度四线同图</span><span class="pill">条件收益率回溯</span><span class="pill">恐慌买入统计</span>
-  <div class="insight"><b>先说结论：</b>历史上 VIX 越高、CNN 越恐慌，随后一年的标普收益反而越高——VIX&gt;80 时（仅 2 次：2008、2020）一年后平均 <b>+45.7%</b>，CNN 极度恐慌(&lt;15) 时买入平均 <b>+10.9%</b>，都高于标普近20年的长期平均 <b>8.6%</b>。恐慌往往是机会，但要拿得住一年。</div>
+  <div class="insight"><b>先说结论：</b>历史上 VIX 越高、CNN 越恐慌，随后一年两个指数的收益都越高——VIX&gt;80 时（仅 2 次：2008、2020）标普一年后平均 <b>+45.7%</b>、纳指 <b>+67.8%</b>；CNN 极度恐慌(&lt;15) 时分别为 <b>+10.9%</b> / <b>+13.6%</b>。恐慌往往是机会，但要拿得住一年。</div>
 </div>
 
 <div class="card">
@@ -74,32 +77,34 @@ td.delta{color:#8a6d3b;font-size:12.5px;white-space:nowrap}
 </div>
 
 <h2>恐慌时买入，未来一年收益率是多少？</h2>
-<p class="desc">当指标达到下面某个水平时买入标普500并持有一年，历史平均收益率是多少。对比基准是<b>标普500近20年（2006–2026）的年化收益率 8.6%</b>——也就是"什么都不做、长期拿着"的收益。</p>
+<p class="desc">当指标达到下面某个水平时买入并持有一年，标普500 和纳斯达克的历史平均收益率分别是多少。对比基准是各自<b>近20年（2006–2026）的年化收益率</b>——标普 8.6%、纳指 12.1%，也就是"什么都不做、长期拿着"的收益。</p>
 <div class="tbl-wrap"><table>
-<thead><tr>
-<th>买入条件</th><th>买入后一年收益率</th><th>标普近20年平均收益率</th><th>超出基准</th>
-</tr></thead>
+<thead>
+<tr class="grp"><th rowspan="2">买入条件</th><th colspan="2">标普500</th><th colspan="2">纳斯达克</th></tr>
+<tr><th>买入后一年收益率</th><th>近20年平均</th><th>买入后一年收益率</th><th>近20年平均</th></tr>
+</thead>
 <tbody>
-<tr><td><span class="tag vix">VIX > 30</span></td><td class="big up">+10.8%</td><td class="big base">+8.6%</td><td class="delta">+2.2 个百分点</td></tr>
-<tr><td><span class="tag vix">VIX > 50</span></td><td class="big up">+27.9%</td><td class="big base">+8.6%</td><td class="delta">+19.3 个百分点</td></tr>
-<tr><td><span class="tag vix">VIX > 80</span></td><td class="big up">+45.7%</td><td class="big base">+8.6%</td><td class="delta">+37.1 个百分点</td></tr>
-<tr><td><span class="tag cnn">CNN < 15（极度恐慌）</span></td><td class="big up">+10.9%</td><td class="big base">+8.6%</td><td class="delta">+2.3 个百分点</td></tr>
-<tr><td><span class="tag cnn">CNN < 20</span></td><td class="big up">+11.5%</td><td class="big base">+8.6%</td><td class="delta">+2.9 个百分点</td></tr>
-<tr><td><span class="tag cnn">CNN < 25</span></td><td class="big up">+11.7%</td><td class="big base">+8.6%</td><td class="delta">+3.1 个百分点</td></tr>
+<tr><td><span class="tag vix">VIX > 30</span></td><td class="big up">+10.8%</td><td class="base">+8.6%</td><td class="big up">+15.5%</td><td class="base">+12.1%</td></tr>
+<tr><td><span class="tag vix">VIX > 50</span></td><td class="big up">+27.9%</td><td class="base">+8.6%</td><td class="big up">+44.2%</td><td class="base">+12.1%</td></tr>
+<tr><td><span class="tag vix">VIX > 80</span></td><td class="big up">+45.7%</td><td class="base">+8.6%</td><td class="big up">+67.8%</td><td class="base">+12.1%</td></tr>
+<tr><td><span class="tag cnn">CNN < 15（极度恐慌）</span></td><td class="big up">+10.9%</td><td class="base">+8.6%</td><td class="big up">+13.6%</td><td class="base">+12.1%</td></tr>
+<tr><td><span class="tag cnn">CNN < 20</span></td><td class="big up">+11.5%</td><td class="base">+8.6%</td><td class="big up">+14.9%</td><td class="base">+12.1%</td></tr>
+<tr><td><span class="tag cnn">CNN < 25</span></td><td class="big up">+11.7%</td><td class="base">+8.6%</td><td class="big up">+15.4%</td><td class="base">+12.1%</td></tr>
 </tbody>
 </table></div>
 
 <div class="takeaway" style="margin-top:16px">
 <b>一句话总结：</b>
 <ul>
-<li><b>恐慌越极端，一年后收益越高。</b>VIX &gt; 30 时买入，一年平均 +10.8%，比长期平均 8.6% 略高；VIX &gt; 50 升到 +27.9%；VIX &gt; 80 达 +45.7%。</li>
-<li><b>CNN 极度恐慌(&lt;15) 时买入</b>，一年平均 +10.9%，同样高于长期平均；阈值放宽到 20、25 时收益略低但仍为正。</li>
+<li><b>恐慌越极端，两个指数一年后收益都越高。</b>VIX &gt; 30 时标普 +10.8%、纳指 +15.5%；VIX &gt; 50 升到 +27.9% / +44.2%；VIX &gt; 80 达 +45.7% / +67.8%。</li>
+<li><b>纳指的弹性更大</b>——每种恐慌情形下纳指一年收益都高于标普，但它自己的长期基准也更高（12.1% vs 8.6%）。</li>
+<li><b>CNN 极度恐慌(&lt;15) 时买入</b>，标普 +10.9%、纳指 +13.6%，都略高于各自长期平均。</li>
 <li><b>提醒：</b>VIX &gt; 80 历史上只出现过 2 次（2008 金融危机、2020 疫情），VIX &gt; 50 只有 4 次。数字漂亮但样本少，不能当作必然规律。</li>
 </ul>
 </div>
 
 <div class="foot">
-<b>数据来源与口径：</b>标普500(^GSPC)、纳斯达克(^IXIC)、VIX(^VIX) 收盘来自 Yahoo Finance；CNN 恐惧贪婪指数来自公开数据集 whit3rabbit/fear-greed-data（2011-01 起）。<b>买入后一年收益率</b>＝指标首次穿越该阈值当日收盘买入、365 天后最近交易日卖出的涨跌幅（同一波恐慌只记一次，VIX 冷却期 90 天、CNN 45 天），取历次平均。<b>标普近20年平均收益率</b>＝2006-11 至 2026-11 的年化复合收益率 8.6%（1382 点 → 7183 点）。均未计股息、税费与交易成本，不同统计口径下数字会有差异。<br>
+<b>数据来源与口径：</b>标普500(^GSPC)、纳斯达克(^IXIC)、VIX(^VIX) 收盘来自 Yahoo Finance；CNN 恐惧贪婪指数来自公开数据集 whit3rabbit/fear-greed-data（2011-01 起）。<b>买入后一年收益率</b>＝指标首次穿越该阈值当日收盘买入、365 天后最近交易日卖出的涨跌幅（同一波恐慌只记一次，VIX 冷却期 90 天、CNN 45 天），取历次平均。<b>近20年平均收益率</b>＝2006-11 至 2026-11 的年化复合收益率：标普 8.6%（1382→7183 点）、纳指 12.1%（2406→23586 点）。均未计股息、税费与交易成本，不同统计口径下数字会有差异。<br>
 <b>免责声明：</b>以上为历史数据统计，仅供参考，不构成投资建议。历史规律不代表未来，市场有风险，投资需谨慎。数据截至 2026-11-26。
 </div>
 
