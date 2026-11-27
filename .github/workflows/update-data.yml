@@ -1,7 +1,7 @@
 name: 更新行情快照并部署
 on:
   schedule:
-    - cron: '*/30 * * * *'   # 每 30 分钟（UTC）
+    - cron: '*/30 * * * *'   # 每 30 分钟（UTC）——行情快照
   workflow_dispatch:
   push:
     branches: [main]
