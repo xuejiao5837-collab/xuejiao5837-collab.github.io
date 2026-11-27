@@ -319,6 +319,7 @@
         <li><div class="row" onclick="openPage('market')"><span class="num">x</span><span class="word" data-i18n="m10">美股利率图</span></div></li>
         <li><div class="row" onclick="openPage('driving')"><span class="num">xi</span><span class="word" data-i18n="m11">欧洲开车指南</span></div></li>
         <li><div class="row" onclick="openPage('fear')"><span class="num">xii</span><span class="word" data-i18n="m12">恐慌指数</span></div></li>
+        <li><div class="row" onclick="openPage('invest')"><span class="num">xiii</span><span class="word" data-i18n="m13">投资版图</span></div></li>
       </ul>
     </nav>
   </header>
@@ -678,6 +679,8 @@ const I18N = {
       m9:"我要打赏",
       m10:"美股利率图",
       m11:"欧洲开车指南",
+      m12:"恐慌指数",
+      m13:"投资版图",
       rw_sub:"如果这个网站、这些文章或小工具有帮到你，请我喝杯咖啡 ☕",
       rw_tip:"手机端：长按二维码 → 识别图中二维码 → 输入金额即可打赏。<br>电脑端：打开微信「扫一扫」，扫描上面的二维码。",
       rw_note:"* 打赏完全自愿，金额随意。感谢每一份支持 🙏"},
@@ -715,6 +718,8 @@ const I18N = {
       m9:"buy me a coffee",
       m10:"Market & Rates",
       m11:"Driving in Europe",
+      m12:"Fear & Greed",
+      m13:"Investments",
       rw_sub:"If this site, the essays or the tools helped you, buy me a coffee ☕",
       rw_tip:"On mobile: long-press the QR code → recognize it → enter any amount to tip.<br>On desktop: open WeChat scan and point it at the code above.",
       rw_note:"* Tipping is entirely voluntary. Thank you for every bit of support 🙏"},
@@ -752,6 +757,8 @@ const I18N = {
       m9:"Trinkgeld",
       m10:"Aktien & Zinsen",
       m11:"Autofahren in Europa",
+      m12:"Angst & Gier",
+      m13:"Investitionen",
       rw_sub:"Wenn dir diese Website, die Texte oder die Tools geholfen haben, gönn mir einen Kaffee ☕",
       rw_tip:"Am Handy: QR-Code lange drücken → erkennen → beliebigen Betrag senden.<br>Am Computer: WeChat-Scan öffnen und auf den Code oben richten.",
       rw_note:"* Trinkgeld ist völlig freiwillig. Danke für jede Unterstützung 🙏"}
@@ -806,6 +813,9 @@ function openPage(name){
   if(name==="market"){ window.open("market-rates.html","_blank"); return; }
   if(name==="driving"){ window.open("driving-europe.html","_blank"); return; }
   if(name==="fear"){ window.open("fear-greed.html","_blank"); return; }
+  if(name==="invest"){ window.open("invest-charts.html","_blank"); return; }
+  if(name==="fear"){ window.open("fear-greed.html","_blank"); return; }
+  if(name==="invest"){ window.open("invest-charts.html","_blank"); return; }
   if(curPage) document.getElementById("pg-"+curPage).classList.remove("show");
   curPage = name;
   const pg = document.getElementById("pg-"+name);
