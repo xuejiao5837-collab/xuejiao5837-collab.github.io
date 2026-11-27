@@ -320,6 +320,7 @@
         <li><div class="row" onclick="openPage('driving')"><span class="num">xi</span><span class="word" data-i18n="m11">欧洲开车指南</span></div></li>
         <li><div class="row" onclick="openPage('fear')"><span class="num">xii</span><span class="word" data-i18n="m12">恐慌指数</span></div></li>
         <li><div class="row" onclick="openPage('invest')"><span class="num">xiii</span><span class="word" data-i18n="m13">投资版图</span></div></li>
+        <li><div class="row" onclick="openPage('hot')"><span class="num">xiv</span><span class="word" data-i18n="m14">每日热榜</span></div></li>
       </ul>
     </nav>
   </header>
@@ -681,6 +682,7 @@ const I18N = {
       m11:"欧洲开车指南",
       m12:"恐慌指数",
       m13:"投资版图",
+      m14:"每日热榜",
       rw_sub:"如果这个网站、这些文章或小工具有帮到你，请我喝杯咖啡 ☕",
       rw_tip:"手机端：长按二维码 → 识别图中二维码 → 输入金额即可打赏。<br>电脑端：打开微信「扫一扫」，扫描上面的二维码。",
       rw_note:"* 打赏完全自愿，金额随意。感谢每一份支持 🙏"},
@@ -814,8 +816,10 @@ function openPage(name){
   if(name==="driving"){ window.open("driving-europe.html","_blank"); return; }
   if(name==="fear"){ window.open("fear-greed.html","_blank"); return; }
   if(name==="invest"){ window.open("invest-charts.html","_blank"); return; }
+  if(name==="hot"){ window.open("daily-hot.html","_blank"); return; }
   if(name==="fear"){ window.open("fear-greed.html","_blank"); return; }
   if(name==="invest"){ window.open("invest-charts.html","_blank"); return; }
+  if(name==="hot"){ window.open("daily-hot.html","_blank"); return; }
   if(curPage) document.getElementById("pg-"+curPage).classList.remove("show");
   curPage = name;
   const pg = document.getElementById("pg-"+name);
